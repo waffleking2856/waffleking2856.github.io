@@ -29,7 +29,6 @@
             opacity: 1;
         }
         .scene.hidden { opacity: 0; pointer-events: none; }
-        .scene.gone   { display: none; }
 
         /* ══════════════════════════════════════════════════════════
            SCENE 1 – CHEESE PULL
@@ -90,77 +89,109 @@
             z-index: 5;
         }
 
-        /* Snap animation */
-        @keyframes snapShake {
-            0%   { transform: translateX(-50%) rotate(0deg); }
-            20%  { transform: translateX(-48%) rotate(-3deg); }
-            40%  { transform: translateX(-52%) rotate(3deg); }
-            60%  { transform: translateX(-48%) rotate(-2deg); }
-            80%  { transform: translateX(-51%) rotate(1deg); }
-            100% { transform: translateX(-50%) rotate(0deg); }
+        /* Snap animation for top half flying up */
+        @keyframes snapFlyUp {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+            60%  { transform: translateY(-80px) rotate(-12deg); opacity: 1; }
+            100% { transform: translateY(-60px) rotate(-8deg); opacity: 0.7; }
         }
-        .snapping { animation: snapShake 0.4s ease; }
+        @keyframes snapFallDown {
+            0%   { transform: translateY(0) rotate(0deg); }
+            100% { transform: translateY(30px) rotate(5deg); }
+        }
+        .snap-fly-up   { animation: snapFlyUp 0.45s ease forwards; }
+        .snap-fall-down { animation: snapFallDown 0.3s ease forwards; }
 
-        /* Plate */
-        .plate-wrapper {
+        /* ── Cheese pull assembly ── */
+        /*
+          Layout (bottom to top in DOM order reversed by flex-direction: column):
+            #mozz-bottom  – bottom half image, sits on the plate, stays put
+            #cheese-stretch – the yellow strand growing upward between the halves
+            #mozz-top     – top half image, dragged upward by the finger
+        */
+        #cheese-scene-body {
+            position: relative;
+            width: 100%;
+            height: 100%;
             display: flex;
             flex-direction: column;
             align-items: center;
-            position: relative;
-            width: 160px;
+            justify-content: flex-end;   /* anchor to bottom */
+            padding-bottom: 80px;
         }
 
-        /* Cheese strand */
-        #cheese-stretch {
-            width: 18px;
-            background: linear-gradient(180deg, #ffe566 0%, #ffd700 60%, #e6b800 100%);
-            border-radius: 6px 6px 3px 3px;
-            height: 0;
-            min-height: 0;
-            transition: height 0.05s linear;
-            box-shadow: 0 0 8px rgba(255,215,0,0.4);
+        /* Wrapper that holds the whole pull stack */
+        .pull-stack {
+            display: flex;
+            flex-direction: column;   /* top → bottom in DOM, visually stacked */
+            align-items: center;
             position: relative;
+            touch-action: none;
         }
+
+        /* Top half – moves up as finger drags */
+        #mozz-top {
+            width: 120px;
+            height: auto;
+            display: block;
+            touch-action: none;
+            /* will be translated upward by JS */
+            transform: translateY(0);
+            transition: none;
+            position: relative;
+            z-index: 3;
+        }
+
+        /* Cheese strand between the two halves */
+        #cheese-stretch {
+            width: 22px;
+            background: linear-gradient(180deg, #ffe566 0%, #ffd700 55%, #e6b800 100%);
+            border-radius: 5px;
+            height: 0;
+            transition: none;   /* JS drives this directly */
+            box-shadow: 0 0 10px rgba(255,215,0,0.5);
+            position: relative;
+            z-index: 2;
+            flex-shrink: 0;
+        }
+        /* Shiny highlight on cheese strand */
         #cheese-stretch::after {
             content: '';
             position: absolute;
-            left: 4px; top: 0; bottom: 0; width: 3px;
-            background: rgba(255,255,255,0.25);
+            left: 5px; top: 0; bottom: 0; width: 4px;
+            background: rgba(255,255,255,0.3);
             border-radius: 3px;
         }
 
-        /* Mozz stick */
-        #mozz-stick {
-            width: 100px;
-            height: 36px;
-            background: linear-gradient(180deg, #c8822a 0%, #a0621a 100%);
-            border-radius: 18px;
-            border: 2px solid #7a4810;
+        /* Bottom half – stays still */
+        #mozz-bottom {
+            width: 120px;
+            height: auto;
+            display: block;
             position: relative;
-            cursor: grab;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
-            touch-action: none;
-        }
-        #mozz-stick::before {
-            content: '🧀 Drag up!';
-            position: absolute;
-            top: 50%; left: 50%;
-            transform: translate(-50%,-50%);
-            color: rgba(255,240,200,0.9);
-            font-size: 0.65rem;
-            font-weight: 700;
-            white-space: nowrap;
-            letter-spacing: 0.3px;
+            z-index: 3;
         }
 
-        /* Plate base */
+        /* Plate base under bottom half */
         .plate-base {
-            width: 160px;
-            height: 16px;
+            width: 150px;
+            height: 14px;
             background: radial-gradient(ellipse, #e8e0d0 30%, #c8c0b0 100%);
             border-radius: 50%;
-            margin-top: 8px;
+            margin-top: 6px;
             box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        /* Drag hint label under the top half */
+        .drag-hint {
+            color: rgba(255,210,160,0.7);
+            font-size: 0.72rem;
+            font-weight: 700;
+            letter-spacing: 0.5px;
+            text-align: center;
+            margin-bottom: 6px;
+            text-transform: uppercase;
+            pointer-events: none;
         }
 
         /* ══════════════════════════════════════════════════════════
@@ -576,9 +607,13 @@
         <div id="cheese-scene-body">
             <div id="result-text">🔥 Good pull!!</div>
 
-            <div class="plate-wrapper">
+            <p class="drag-hint">↑ Grab the top half &amp; pull up ↑</p>
+
+            <!-- The two image halves + cheese strand stacked vertically -->
+            <div class="pull-stack" id="pull-stack">
+                <img src="tophalf.png"   alt="mozz top"    id="mozz-top">
                 <div id="cheese-stretch"></div>
-                <div id="mozz-stick"></div>
+                <img src="bottomhalf.png" alt="mozz bottom" id="mozz-bottom">
                 <div class="plate-base"></div>
             </div>
         </div>
@@ -701,6 +736,5 @@
 
     </div>
 
-    <script src="script.js"></script>
 </body>
 </html>

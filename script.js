@@ -130,52 +130,73 @@ function ch2ShowScene(fromId, toId) {
     const to   = document.getElementById(toId);
     if (!from || !to) return;
 
+    // Step 1: fade out the current scene
     from.classList.add('hidden');
+
+    // Step 2: after fade completes, hard-hide it and reveal next scene
     setTimeout(() => {
-        from.classList.add('gone');
+        from.style.display = 'none';
+        to.style.display   = '';          // make sure it's not display:none
+        // Force a reflow so the opacity transition fires
+        void to.offsetHeight;
         to.classList.remove('hidden');
-        to.classList.remove('gone');
-    }, 900);
+    }, 850);
 }
 
 // ── SCENE 1: CHEESE PULL ─────────────────────────────────────────
-const mozzStick = document.getElementById('mozz-stick');
+const mozzTop = document.getElementById('mozz-top');
 
-if (mozzStick) {
+if (mozzTop) {
     const cheeseStretch = document.getElementById('cheese-stretch');
     const resultText    = document.getElementById('result-text');
 
     let isDragging  = false;
     let snapDone    = false;
     let stretchPx   = 0;
+    let baseY       = null;   // Y position of the top-half's top edge at rest
 
-    // touchstart on the stick activates dragging
-    mozzStick.addEventListener('touchstart', (e) => {
+    // On first touchstart on the top half, record where it sits
+    mozzTop.addEventListener('touchstart', (e) => {
         e.preventDefault();
         if (snapDone) return;
         isDragging = true;
+
+        // Record the resting top-edge Y once so we have a solid anchor
+        if (baseY === null) {
+            baseY = mozzTop.getBoundingClientRect().top;
+        }
     }, { passive: false });
 
     document.addEventListener('touchmove', (e) => {
         if (!isDragging || snapDone) return;
         e.preventDefault();
 
-        // How far the finger is above the bottom of the viewport
-        const fingerY  = e.touches[0].clientY;
-        const vh       = window.innerHeight;
-        // Stretch height = how far above the midpoint of the plate-wrapper the finger goes
-        // We anchor the "zero" at about 75% down the screen
-        stretchPx = Math.min(260, Math.max(0, (vh * 0.75) - fingerY));
+        const fingerY = e.touches[0].clientY;
 
+        // How many px above the resting position is the finger?
+        // clamp between 0 and 280 so it can't go crazy far
+        stretchPx = Math.min(280, Math.max(0, baseY - fingerY));
+
+        // Move the top half up
+        mozzTop.style.transform = `translateY(-${stretchPx}px)`;
+
+        // Grow the cheese strand downward to fill the gap
         cheeseStretch.style.height = stretchPx + 'px';
 
-        // Visual wobble color as it gets close
-        if (stretchPx > 160) {
-            cheeseStretch.style.background = `linear-gradient(180deg, #ffee44 0%, #ffbb00 60%, #cc8800 100%)`;
+        // Warm up the cheese color as it stretches thin
+        if (stretchPx > 130) {
+            const t = (stretchPx - 130) / 150;   // 0→1 as it approaches snap
+            cheeseStretch.style.width = Math.max(8, 22 - t * 10) + 'px';
+            cheeseStretch.style.background =
+                `linear-gradient(180deg, #ffee44 0%, #ffaa00 60%, #cc6600 100%)`;
+        } else {
+            cheeseStretch.style.width = '22px';
+            cheeseStretch.style.background =
+                `linear-gradient(180deg, #ffe566 0%, #ffd700 55%, #e6b800 100%)`;
         }
 
-        // Snap trigger at 210px stretch
-        if (stretchPx >= 210) {
+        // Snap at 220px
+        if (stretchPx >= 220) {
             snapCheese();
         }
     }, { passive: false });
@@ -184,9 +205,13 @@ if (mozzStick) {
         if (snapDone) return;
         isDragging = false;
         // Rubber-band back if not snapped
-        if (stretchPx < 210) {
+        if (stretchPx < 220) {
             stretchPx = 0;
+            mozzTop.style.transition = 'transform 0.3s ease';
+            mozzTop.style.transform = 'translateY(0)';
+            setTimeout(() => { mozzTop.style.transition = 'none'; }, 320);
             cheeseStretch.style.height = '0px';
+            cheeseStretch.style.width  = '22px';
             cheeseStretch.style.background = '';
         }
     });
@@ -196,21 +221,21 @@ if (mozzStick) {
         snapDone   = true;
         isDragging = false;
 
-        // Animate snap: stretch collapses
-        cheeseStretch.style.transition = 'height 0.2s ease-in';
-        cheeseStretch.style.height = '0px';
+        // Top half flies up and off
+        mozzTop.classList.add('snap-fly-up');
 
-        // Shake the stick
-        mozzStick.classList.add('snapping');
-        setTimeout(() => mozzStick.classList.remove('snapping'), 500);
+        // Cheese strand collapses fast
+        cheeseStretch.style.transition = 'height 0.15s ease-in, opacity 0.15s';
+        cheeseStretch.style.height  = '0px';
+        cheeseStretch.style.opacity = '0';
 
-        // Show the result text
+        // Show "Good pull!!" text
         resultText.style.opacity = '1';
 
-        // After a beat, move to the ketchup scene
+        // After a moment, transition to the ketchup scene
         setTimeout(() => {
             ch2ShowScene('scene-cheese', 'scene-ketchup');
-        }, 1800);
+        }, 1900);
     }
 }
 
@@ -296,16 +321,18 @@ if (ketchupBottle) {
         }, 400);
     }
 
-    // Continue button inside waitress popup
-    if (ketchupContinue) {
-        ketchupContinue.addEventListener('click', () => {
-            ch2ShowScene('scene-ketchup', 'scene-dipper');
-        });
-        ketchupContinue.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            ch2ShowScene('scene-ketchup', 'scene-dipper');
-        });
+}
+
+// ── Ketchup continue button – standalone so it always works ──────
+const ketchupContinueBtn = document.getElementById('ketchup-continue-btn');
+if (ketchupContinueBtn) {
+    function doKetchupContinue(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        ch2ShowScene('scene-ketchup', 'scene-dipper');
     }
+    ketchupContinueBtn.addEventListener('click',    doKetchupContinue);
+    ketchupContinueBtn.addEventListener('touchend', doKetchupContinue);
 }
 
 
