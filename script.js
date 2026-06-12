@@ -232,9 +232,9 @@ if (mozzTop) {
         // Show "Good pull!!" text
         resultText.style.opacity = '1';
 
-        // After a moment, transition to the ketchup scene
+        // Go to pull photo scene first, then ketchup
         setTimeout(() => {
-            ch2ShowScene('scene-cheese', 'scene-ketchup');
+            ch2ShowScene('scene-cheese', 'scene-pull-photo');
         }, 1900);
     }
 }
@@ -346,94 +346,145 @@ if (ketchupContinueBtn) {
 }
 
 
+// ── Pull photo continue button → ketchup ────────────────────────
+const pullPhotoContinueBtn = document.getElementById('pull-photo-continue-btn');
+if (pullPhotoContinueBtn) {
+    let pullContinueFired = false;
+    function doPullContinue(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (pullContinueFired) return;
+        pullContinueFired = true;
+        ch2ShowScene('scene-pull-photo', 'scene-ketchup');
+    }
+    pullPhotoContinueBtn.addEventListener('touchstart', doPullContinue, { passive: false });
+    pullPhotoContinueBtn.addEventListener('click', doPullContinue);
+}
+
+
 // ── SCENE 3: TRIPLE DIPPER DEBATE ────────────────────────────────
 const confirmVoteBtn = document.getElementById('confirm-vote-btn');
 
 if (confirmVoteBtn) {
-    const voteOptions     = document.querySelectorAll('.vote-card');
-    const dipper          = document.getElementById('scene-dipper');
-    const verdictPanel    = document.getElementById('verdict-panel');
-    const dipper_voteSection = document.getElementById('dipper-vote-section');
-    const verdictEmoji    = document.getElementById('verdict-emoji');
-    const verdictTitle    = document.getElementById('verdict-title');
-    const verdictText     = document.getElementById('verdict-text');
-    const toChapter3Btn   = document.getElementById('to-chapter3-btn');
+    const voteOptions        = document.querySelectorAll('.vote-card');
+    const dipper             = document.getElementById('scene-dipper');
+    const verdictPanel       = document.getElementById('verdict-panel');
+    const dipperVoteSection  = document.getElementById('dipper-vote-section');
+    const verdictEmoji       = document.getElementById('verdict-emoji');
+    const verdictTitle       = document.getElementById('verdict-title');
+    const verdictText        = document.getElementById('verdict-text');
+    const toClosingBtn       = document.getElementById('to-closing-btn');
 
     let selectedChoice = null;
 
-    // Verdict copy for each pick
+    // Verdicts — text is yours to fill in, these are placeholders
     const verdicts = {
-        wings: {
+        bbq: {
             emoji: '🍗',
-            title: "Matt wins this one 😤",
-            text: "Wings. The only correct answer. Classic, crowd-pleasing, and pairs perfectly with ranch and chips & salsa. You can admit it — you knew he was right."
+            title: 'good pick pookie',
+            // YOUR TEXT: what do you want to say when she picks the right one?
+            text: '[YOUR TEXT HERE]'
         },
-        quesadilla: {
-            emoji: '🤝',
-            title: "An acceptable compromise",
-            text: "Okay, quesadillas are solid. Cheesy, shareable, no real arguments here. Matt probably still thinks wings were better but he's smart enough to stay quiet this time."
+        buffalo: {
+            emoji: '🔥',
+            title: 'pookie gets what pookie wants or whateva',
+            // YOUR TEXT: what do you want to say when she goes buffalo?
+            text: '[YOUR TEXT HERE]'
         },
-        nachos: {
-            emoji: '🤨',
-            title: "Bold. Controversial. Wrong.",
-            text: "Nachos?? You already have chips and salsa! The overlap is off the charts. Matt is deeply, passionately, respectfully disappointed in this choice."
+        eggrolls: {
+            emoji: '🥢',
+            title: 'pookie gets what pookie wants or whateva',
+            // YOUR TEXT: what do you want to say about the egg rolls pick?
+            text: '[YOUR TEXT HERE]'
         },
-        ribs: {
-            emoji: '😂',
-            title: "Jill's Wildcard Wins!",
-            text: "Cheddar bites. Nobody expected it. Nobody can stop it. Honestly kind of genius? Matt won't admit it but he ate at least six of them."
+        fourth: {
+            emoji: '❓',
+            title: '[YOUR TITLE]',
+            // YOUR TEXT: what do you want to say about this choice?
+            text: '[YOUR TEXT HERE]'
         }
     };
 
-    // Handle vote card selection
+    // Handle vote card selection — use touchstart for Safari reliability
     voteOptions.forEach((card) => {
-        function selectCard() {
+        function selectCard(e) {
+            if (e.cancelable) e.preventDefault();
             voteOptions.forEach(c => c.classList.remove('selected'));
             card.classList.add('selected');
             selectedChoice = card.dataset.choice;
             confirmVoteBtn.classList.add('ready');
         }
+        card.addEventListener('touchstart', selectCard, { passive: false });
         card.addEventListener('click', selectCard);
-        card.addEventListener('touchend', (e) => {
-            e.preventDefault();
-            selectCard();
-        });
     });
 
     // Confirm vote
-    function handleConfirm() {
-        if (!selectedChoice) return;
+    let confirmFired = false;
+    function handleConfirm(e) {
+        e.preventDefault();
+        if (!selectedChoice || confirmFired) return;
+        confirmFired = true;
         const v = verdicts[selectedChoice];
 
         verdictEmoji.textContent = v.emoji;
         verdictTitle.textContent = v.title;
         verdictText.textContent  = v.text;
 
-        // Hide vote section, show verdict
-        dipper_voteSection.style.display = 'none';
+        dipperVoteSection.style.display = 'none';
         verdictPanel.classList.add('visible');
-
-        // Scroll to top of dipper scene
         dipper.scrollTop = 0;
     }
 
+    confirmVoteBtn.addEventListener('touchstart', handleConfirm, { passive: false });
     confirmVoteBtn.addEventListener('click', handleConfirm);
-    confirmVoteBtn.addEventListener('touchend', (e) => {
-        e.preventDefault();
-        handleConfirm();
-    });
 
-    // Chapter 3 navigation
-    if (toChapter3Btn) {
-        function goToChapter3() {
-            window.location.href = 'chapter3.html';
-        }
-        toChapter3Btn.addEventListener('click', goToChapter3);
-        toChapter3Btn.addEventListener('touchend', (e) => {
+    // Manager easter egg
+    const managerCard = document.getElementById('manager-card');
+    const managerEgg  = document.getElementById('manager-egg');
+    if (managerCard && managerEgg) {
+        function openEgg(e) {
             e.preventDefault();
-            goToChapter3();
-        });
+            e.stopPropagation();
+            managerEgg.classList.add('open');
+        }
+        function closeEgg(e) {
+            e.preventDefault();
+            managerEgg.classList.remove('open');
+        }
+        managerCard.addEventListener('touchstart', openEgg, { passive: false });
+        managerCard.addEventListener('click', openEgg);
+        managerEgg.addEventListener('touchstart', closeEgg, { passive: false });
+        managerEgg.addEventListener('click', closeEgg);
     }
+
+    // "keep reading" → closing scene
+    if (toClosingBtn) {
+        let closingFired = false;
+        function goToClosing(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (closingFired) return;
+            closingFired = true;
+            ch2ShowScene('scene-dipper', 'scene-closing');
+        }
+        toClosingBtn.addEventListener('touchstart', goToClosing, { passive: false });
+        toClosingBtn.addEventListener('click', goToClosing);
+    }
+}
+
+
+// ── Closing scene → Chapter 3 ─────────────────────────────────────
+const toChapter3Btn = document.getElementById('to-chapter3-btn');
+if (toChapter3Btn) {
+    let ch3Fired = false;
+    function goToChapter3(e) {
+        e.preventDefault();
+        if (ch3Fired) return;
+        ch3Fired = true;
+        window.location.href = 'chapter3.html';
+    }
+    toChapter3Btn.addEventListener('touchstart', goToChapter3, { passive: false });
+    toChapter3Btn.addEventListener('click', goToChapter3);
 }
 
 

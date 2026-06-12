@@ -195,6 +195,63 @@
         }
 
         /* ══════════════════════════════════════════════════════════
+           SCENE 1B – CHEESE PULL PHOTO
+        ══════════════════════════════════════════════════════════ */
+        #scene-cheese-photo {
+            background: radial-gradient(ellipse at center, #2c1a00 0%, #1a0a00 100%);
+        }
+
+        #photo-scene-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            width: 100%;
+            height: 100%;
+            padding: 20px;
+            padding-top: 100px;
+            overflow-y: auto;
+        }
+
+        #pull-photo {
+            width: 90%;
+            max-width: 340px;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.6);
+            margin-bottom: 24px;
+            border: 4px solid #fff;
+            object-fit: cover;
+        }
+
+        #cheese-caption {
+            color: #e2e8f0;
+            font-size: 1rem;
+            line-height: 1.7;
+            text-align: center;
+            max-width: 95%;
+            margin-bottom: 32px;
+            -webkit-user-select: text;
+            user-select: text;
+            font-style: italic;
+            color: rgba(255,210,160,0.9);
+        }
+
+        .next-chapter-btn {
+            background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            padding: 12px 28px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            touch-action: manipulation;
+            box-shadow: 0 4px 16px rgba(0,0,0,0.4);
+            transition: transform 0.2s;
+        }
+        .next-chapter-btn:active { transform: scale(0.97); }
+
+        /* ══════════════════════════════════════════════════════════
            SCENE 2 – KETCHUP BOTTLE
         ══════════════════════════════════════════════════════════ */
         #scene-ketchup {
@@ -467,7 +524,7 @@
         /* Voting options */
         .vote-options {
             display: grid;
-            grid-template-columns: 1fr 1fr;
+            grid-template-columns: 1fr;
             gap: 10px;
             margin-bottom: 16px;
         }
@@ -475,8 +532,11 @@
             background: rgba(255,255,255,0.06);
             border: 2px solid rgba(255,255,255,0.12);
             border-radius: 14px;
-            padding: 14px 10px;
-            text-align: center;
+            padding: 12px 16px;
+            text-align: left;
+            display: flex;
+            align-items: center;
+            gap: 14px;
             cursor: pointer;
             transition: all 0.2s ease;
             touch-action: manipulation;
@@ -487,16 +547,17 @@
             background: rgba(255,107,53,0.18);
             box-shadow: 0 0 16px rgba(255,107,53,0.25);
         }
-        .vote-card .vote-emoji { font-size: 2rem; margin-bottom: 6px; }
+        .vote-card .vote-emoji { font-size: 2rem; flex-shrink: 0; }
+        .vote-card .vote-text  { display: flex; flex-direction: column; }
         .vote-card .vote-name {
             color: #fff;
-            font-size: 0.78rem;
+            font-size: 0.88rem;
             font-weight: 700;
         }
         .vote-card .vote-desc {
             color: rgba(255,255,255,0.5);
-            font-size: 0.62rem;
-            margin-top: 3px;
+            font-size: 0.68rem;
+            margin-top: 2px;
             line-height: 1.3;
         }
 
@@ -594,6 +655,152 @@
             margin-top: 8px;
             margin-bottom: 20px;
         }
+
+        /* ── Shared nav button ── */
+        .chapter-nav-btn {
+            background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 14px 28px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            touch-action: manipulation;
+            width: 100%;
+            transition: transform 0.2s;
+            pointer-events: auto;
+            -webkit-appearance: none;
+            appearance: none;
+            margin-top: 16px;
+        }
+        .chapter-nav-btn:active { transform: scale(0.97); }
+
+        /* ── Pull photo scene ── */
+        #scene-pull-photo {
+            background: radial-gradient(ellipse at center, #2c1a00 0%, #1a0a00 100%);
+            justify-content: center;
+            padding: 30px 24px;
+        }
+        .pull-photo-wrap {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+        }
+        .pull-photo-img {
+            width: 100%;
+            max-width: 340px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.6);
+            border: 3px solid rgba(255,215,0,0.3);
+            margin-bottom: 18px;
+        }
+        .pull-caption {
+            color: rgba(255,220,160,0.9);
+            font-size: 0.95rem;
+            line-height: 1.6;
+            text-align: center;
+            margin-bottom: 4px;
+            font-style: italic;
+        }
+
+        /* ── Manager easter egg ── */
+        .manager-card {
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+            cursor: pointer;
+            touch-action: manipulation;
+            -webkit-tap-highlight-color: transparent;
+        }
+        .manager-card-title {
+            color: rgba(255,150,100,0.8);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .manager-quote {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            font-style: italic;
+        }
+        .manager-tap-hint {
+            color: rgba(255,120,80,0.6);
+            font-size: 0.62rem;
+            margin-top: 8px;
+            font-style: normal;
+            letter-spacing: 0.3px;
+        }
+
+        /* The full-screen easter egg overlay */
+        .hidden-egg {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.92);
+            z-index: 999;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 24px;
+        }
+        .hidden-egg.open { display: flex; }
+        #manager-review-img {
+            width: 100%;
+            max-width: 380px;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.8);
+        }
+        .egg-close-hint {
+            color: rgba(255,255,255,0.45);
+            font-size: 0.72rem;
+            margin-top: 16px;
+        }
+
+        /* ── Closing scene ── */
+        #scene-closing {
+            background: linear-gradient(to bottom, #1a0a00, #0d0600);
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+        .closing-scroll {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 40px 24px 50px;
+            width: 100%;
+        }
+        .closing-photo {
+            width: 100%;
+            max-width: 340px;
+            border-radius: 16px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.7);
+            border: 3px solid rgba(255,255,255,0.1);
+            margin-bottom: 28px;
+        }
+        .closing-text {
+            color: #e2d5c0;
+            font-size: 1rem;
+            line-height: 1.75;
+            text-align: center;
+            margin-bottom: 36px;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+        .ch3-hint {
+            color: rgba(255,255,255,0.3);
+            font-size: 0.7rem;
+            margin-top: 10px;
+            margin-bottom: 30px;
+        }
     </style>
 </head>
 <body>
@@ -625,8 +832,17 @@
     </div>
 
     <!-- ══════════════════════════════════════════
-         SCENE 2: KETCHUP BOTTLE
+         SCENE 1b: PULL PHOTO
     ═══════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-pull-photo">
+        <div class="pull-photo-wrap">
+            <img src="pull.png" alt="the cheese pull" class="pull-photo-img">
+            <!-- YOUR TEXT: add a caption here about this moment -->
+            <p class="pull-caption">[YOUR CAPTION HERE]</p>
+            <button id="pull-photo-continue-btn" class="chapter-nav-btn">slide the ketchup →</button>
+        </div>
+    </div>
+
     <div class="scene hidden" id="scene-ketchup">
 
         <div class="ketchup-instruction">
@@ -693,29 +909,37 @@
                 </div>
             </div>
 
-            <div class="debate-label">⚡ The Great 4th App Debate ⚡</div>
+            <div class="debate-label">What's the 3rd pick?</div>
 
             <!-- Vote options -->
             <div class="vote-options" id="vote-options">
-                <div class="vote-card" data-choice="wings">
+                <div class="vote-card" data-choice="bbq">
                     <div class="vote-emoji">🍗</div>
-                    <div class="vote-name">Bone-In Wings</div>
-                    <div class="vote-desc">Classic. Can't go wrong. Matt's answer.</div>
+                    <div class="vote-text">
+                        <div class="vote-name">BBQ Boneless Wings</div>
+                        <div class="vote-desc">Matt's pick. The obvious answer.</div>
+                    </div>
                 </div>
-                <div class="vote-card" data-choice="quesadilla">
-                    <div class="vote-emoji">🫓</div>
-                    <div class="vote-name">Quesadillas</div>
-                    <div class="vote-desc">Cheesy, safe, reliable.</div>
+                <div class="vote-card" data-choice="buffalo">
+                    <div class="vote-emoji">🔥</div>
+                    <div class="vote-text">
+                        <div class="vote-name">Buffalo Boneless Wings</div>
+                        <div class="vote-desc">Jill's pick #1.</div>
+                    </div>
                 </div>
-                <div class="vote-card" data-choice="nachos">
-                    <div class="vote-emoji">🧆</div>
-                    <div class="vote-name">Loaded Nachos</div>
-                    <div class="vote-desc">Too much overlap with salsa. Controversial.</div>
+                <div class="vote-card" data-choice="eggrolls">
+                    <div class="vote-emoji">🥢</div>
+                    <div class="vote-text">
+                        <div class="vote-name">Southwest Egg Rolls</div>
+                        <div class="vote-desc">Jill's pick #2.</div>
+                    </div>
                 </div>
-                <div class="vote-card" data-choice="ribs">
-                    <div class="vote-emoji">🥩</div>
-                    <div class="vote-name">Crispy Cheddar Bites</div>
-                    <div class="vote-desc">Jill's wildcard pick.</div>
+                <div class="vote-card" data-choice="fourth">
+                    <div class="vote-emoji">❓</div>
+                    <div class="vote-text">
+                        <div class="vote-name">[ADD YOUR 4TH OPTION]</div>
+                        <div class="vote-desc">What was the 4th pick?</div>
+                    </div>
                 </div>
             </div>
 
@@ -729,13 +953,38 @@
             <div class="verdict-title" id="verdict-title">The Verdict</div>
             <div class="verdict-text" id="verdict-text"></div>
 
-            <div class="manager-card">
-                <div class="manager-card-title">🚨 Meanwhile, across the restaurant...</div>
-                <div class="manager-quote">"Hi folks, everything tasting great tonight? Just checking in! Can I get you anything? Still doing well? Great, great. I'll swing back around in two minutes."</div>
+            <!-- Manager easter egg - tap the card to reveal manager.png -->
+            <div class="manager-card" id="manager-card">
+                <div class="manager-card-title">Meanwhile, across the restaurant...</div>
+                <!-- YOUR TEXT: write a funny summary of the manager moment here -->
+                <div class="manager-quote" id="manager-quote">[YOUR TEXT — roast the manager or write a funny summary of his over-checking. Make it good! 😂]</div>
+                <div class="manager-tap-hint">tap to see our review 👀</div>
             </div>
 
-            <button id="to-chapter3-btn">Chapter 3: Cancun 🏝️</button>
-            <p class="ch3-hint">Your greatest adventure awaits →</p>
+            <!-- Manager review easter egg overlay (hidden, revealed on tap) -->
+            <div id="manager-egg" class="hidden-egg">
+                <img src="manager.png" alt="our review" id="manager-review-img">
+                <div class="egg-close-hint">tap to close</div>
+            </div>
+
+            <button id="to-closing-btn" class="chapter-nav-btn">keep reading →</button>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SCENE 4: CHAPTER CLOSING
+    ═══════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-closing">
+
+        <div class="closing-scroll">
+            <img src="us.png" alt="us at Chilis" class="closing-photo">
+
+            <!-- YOUR TEXT: write your closing note for this chapter here -->
+            <p class="closing-text">[YOUR TEXT HERE — write what Chili's means to you, what you love about these dates, whatever you want to say to Jill about this chapter of your year together.]</p>
+
+            <button id="to-chapter3-btn" class="chapter-nav-btn">Chapter 3: Cancun</button>
+            <p class="ch3-hint">next chapter →</p>
         </div>
 
     </div>
