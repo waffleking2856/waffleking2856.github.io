@@ -345,6 +345,7 @@
         #waitress-popup.visible {
             opacity: 1;
             transform: translateX(-50%) scale(1);
+            pointer-events: auto;
         }
         #waitress-popup::after {
             content: '';
@@ -376,6 +377,9 @@
             display: block;
             width: 100%;
             touch-action: manipulation;
+            pointer-events: auto;
+            -webkit-appearance: none;
+            appearance: none;
         }
 
         /* ══════════════════════════════════════════════════════════

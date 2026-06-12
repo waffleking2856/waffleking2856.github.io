@@ -302,6 +302,11 @@ if (ketchupBottle) {
         }
     }, { passive: false });
 
+    ketchupBottle.addEventListener('touchend', (e) => {
+        e.stopPropagation();
+        kDragging = false;
+    }, { passive: true });
+
     document.addEventListener('touchend', () => {
         kDragging = false;
     });
@@ -323,16 +328,21 @@ if (ketchupBottle) {
 
 }
 
-// ── Ketchup continue button – standalone so it always works ──────
+// ── Ketchup continue button – standalone, touchstart for Safari ──
 const ketchupContinueBtn = document.getElementById('ketchup-continue-btn');
 if (ketchupContinueBtn) {
+    let continueFired = false;
     function doKetchupContinue(e) {
         e.preventDefault();
         e.stopPropagation();
+        if (continueFired) return;
+        continueFired = true;
         ch2ShowScene('scene-ketchup', 'scene-dipper');
     }
-    ketchupContinueBtn.addEventListener('click',    doKetchupContinue);
-    ketchupContinueBtn.addEventListener('touchend', doKetchupContinue);
+    // touchstart is most reliable on Safari iOS for dynamically shown elements
+    ketchupContinueBtn.addEventListener('touchstart', doKetchupContinue, { passive: false });
+    // click as fallback for desktop testing
+    ketchupContinueBtn.addEventListener('click', doKetchupContinue);
 }
 
 
