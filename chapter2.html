@@ -1,73 +1,706 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Chili's Date</title>
-    <link rel="stylesheet" href="style.css">
+    <title>Chapter 2 – Chili's</title>
     <script src="script.js" defer></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100%; background: #1a1a24; font-family: sans-serif; overflow: hidden; }
-
-        .scene { position: absolute; width: 100%; height: 100%; transition: opacity 1s ease; opacity: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; }
-        .hidden { opacity: 0; pointer-events: none; }
-
-        h1 { color: #fff; margin-bottom: 40px; font-size: 2rem; }
-
-        /* The Mozz Stick Container */
-        .plate { width: 200px; height: 300px; display: flex; flex-direction: column; align-items: center; justify-content: flex-end; position: relative; }
-        
-        #mozz-stick { 
-            width: 80px; height: 150px; background: #e6b800; border-radius: 10px; cursor: pointer;
-            position: absolute; bottom: 50px; transition: height 0.1s linear;
+        /* ── Reset ────────────────────────────────────────────────── */
+        *, *::before, *::after {
+            box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            touch-action: manipulation;
+        }
+        body, html {
+            width: 100%; height: 100%; overflow: hidden;
+            background: #1a0a00;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        #cheese-stretch { 
-            width: 20px; background: #fdfd96; border-radius: 5px; height: 0; 
-            margin-bottom: 5px; transition: height 0.1s linear;
+        /* ── Scene base ───────────────────────────────────────────── */
+        .scene {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.8s ease;
+            opacity: 1;
+        }
+        .scene.hidden { opacity: 0; pointer-events: none; }
+        .scene.gone   { display: none; }
+
+        /* ══════════════════════════════════════════════════════════
+           SCENE 1 – CHEESE PULL
+        ══════════════════════════════════════════════════════════ */
+        #scene-cheese {
+            background: radial-gradient(ellipse at center, #2c1a00 0%, #1a0a00 100%);
         }
 
-        #result-text { color: #50c878; font-size: 1.5rem; font-weight: bold; margin-top: 20px; opacity: 0; }
+        .chilis-header {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 18px 20px 14px;
+            background: linear-gradient(180deg, #8b0000 0%, #6b0000 100%);
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+            z-index: 2;
+        }
+        .chilis-header h1 {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 900;
+            letter-spacing: 0.5px;
+            text-shadow: 0 2px 6px rgba(0,0,0,0.4);
+        }
+        .chilis-header p {
+            color: rgba(255,220,180,0.85);
+            font-size: 0.78rem;
+            margin-top: 3px;
+            letter-spacing: 0.3px;
+        }
+
+        /* Plate area */
+        #cheese-scene-body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-end;
+            width: 100%;
+            height: 100%;
+            padding-bottom: 60px;
+            position: relative;
+        }
+
+        /* "Good pull!" text */
+        #result-text {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translateX(-50%);
+            color: #50c878;
+            font-size: 1.8rem;
+            font-weight: 900;
+            opacity: 0;
+            transition: opacity 0.4s ease;
+            text-align: center;
+            width: 90%;
+            text-shadow: 0 0 20px rgba(80,200,120,0.5);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        /* Snap animation */
+        @keyframes snapShake {
+            0%   { transform: translateX(-50%) rotate(0deg); }
+            20%  { transform: translateX(-48%) rotate(-3deg); }
+            40%  { transform: translateX(-52%) rotate(3deg); }
+            60%  { transform: translateX(-48%) rotate(-2deg); }
+            80%  { transform: translateX(-51%) rotate(1deg); }
+            100% { transform: translateX(-50%) rotate(0deg); }
+        }
+        .snapping { animation: snapShake 0.4s ease; }
+
+        /* Plate */
+        .plate-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+            width: 160px;
+        }
+
+        /* Cheese strand */
+        #cheese-stretch {
+            width: 18px;
+            background: linear-gradient(180deg, #ffe566 0%, #ffd700 60%, #e6b800 100%);
+            border-radius: 6px 6px 3px 3px;
+            height: 0;
+            min-height: 0;
+            transition: height 0.05s linear;
+            box-shadow: 0 0 8px rgba(255,215,0,0.4);
+            position: relative;
+        }
+        #cheese-stretch::after {
+            content: '';
+            position: absolute;
+            left: 4px; top: 0; bottom: 0; width: 3px;
+            background: rgba(255,255,255,0.25);
+            border-radius: 3px;
+        }
+
+        /* Mozz stick */
+        #mozz-stick {
+            width: 100px;
+            height: 36px;
+            background: linear-gradient(180deg, #c8822a 0%, #a0621a 100%);
+            border-radius: 18px;
+            border: 2px solid #7a4810;
+            position: relative;
+            cursor: grab;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.15);
+            touch-action: none;
+        }
+        #mozz-stick::before {
+            content: '🧀 Drag up!';
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%,-50%);
+            color: rgba(255,240,200,0.9);
+            font-size: 0.65rem;
+            font-weight: 700;
+            white-space: nowrap;
+            letter-spacing: 0.3px;
+        }
+
+        /* Plate base */
+        .plate-base {
+            width: 160px;
+            height: 16px;
+            background: radial-gradient(ellipse, #e8e0d0 30%, #c8c0b0 100%);
+            border-radius: 50%;
+            margin-top: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SCENE 2 – KETCHUP BOTTLE
+        ══════════════════════════════════════════════════════════ */
+        #scene-ketchup {
+            background: radial-gradient(ellipse at 50% 40%, #2c1500 0%, #1a0a00 100%);
+            overflow: hidden;
+        }
+
+        .table-surface {
+            position: absolute;
+            bottom: 0; left: 0; right: 0;
+            height: 55%;
+            background: linear-gradient(180deg, #3d2010 0%, #2a1508 100%);
+            border-top: 4px solid #5a3020;
+            box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+        }
+        .table-grain {
+            position: absolute;
+            inset: 0;
+            background-image: repeating-linear-gradient(
+                90deg,
+                transparent,
+                transparent 40px,
+                rgba(255,255,255,0.02) 40px,
+                rgba(255,255,255,0.02) 42px
+            );
+        }
+
+        .ketchup-instruction {
+            position: absolute;
+            top: 22%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            width: 85%;
+            z-index: 3;
+        }
+        .ketchup-instruction h2 {
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 900;
+            margin-bottom: 8px;
+            text-shadow: 0 2px 8px rgba(0,0,0,0.7);
+        }
+        .ketchup-instruction p {
+            color: rgba(255,210,160,0.85);
+            font-size: 0.88rem;
+            line-height: 1.5;
+        }
+
+        /* The edge zone indicator */
+        #edge-zone {
+            position: absolute;
+            right: 0; top: 0; bottom: 0;
+            width: 48px;
+            background: linear-gradient(270deg, rgba(255,80,80,0.15) 0%, transparent 100%);
+            border-left: 2px dashed rgba(255,80,80,0.35);
+            z-index: 1;
+            transition: background 0.3s, border-color 0.3s;
+        }
+        #edge-zone.active {
+            background: linear-gradient(270deg, rgba(255,80,80,0.4) 0%, transparent 100%);
+            border-color: rgba(255,80,80,0.8);
+        }
+        #edge-zone-label {
+            position: absolute;
+            right: 4px;
+            top: 50%;
+            transform: translateY(-50%) rotate(90deg);
+            color: rgba(255,100,100,0.5);
+            font-size: 0.6rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            white-space: nowrap;
+        }
+
+        /* Ketchup bottle draggable */
+        #ketchup-bottle {
+            position: absolute;
+            bottom: 38%;
+            left: 30px;
+            width: 52px;
+            z-index: 10;
+            touch-action: none;
+            cursor: grab;
+            transition: filter 0.2s;
+            user-select: none;
+        }
+        #ketchup-bottle .bottle-cap {
+            width: 16px;
+            height: 18px;
+            background: linear-gradient(180deg, #888 0%, #666 100%);
+            border-radius: 4px 4px 0 0;
+            margin: 0 auto;
+        }
+        #ketchup-bottle .bottle-neck {
+            width: 20px;
+            height: 22px;
+            background: linear-gradient(180deg, #cc0000 0%, #aa0000 100%);
+            margin: 0 auto;
+        }
+        #ketchup-bottle .bottle-body {
+            width: 52px;
+            height: 90px;
+            background: linear-gradient(180deg, #dd0000 0%, #aa0000 60%, #880000 100%);
+            border-radius: 8px 8px 14px 14px;
+            position: relative;
+            box-shadow: inset -4px 0 8px rgba(0,0,0,0.2), 2px 4px 8px rgba(0,0,0,0.4);
+        }
+        #ketchup-bottle .bottle-label {
+            position: absolute;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(255,255,255,0.9);
+            border-radius: 4px;
+            padding: 3px 5px;
+            font-size: 0.5rem;
+            font-weight: 900;
+            color: #cc0000;
+            letter-spacing: 0.5px;
+            text-align: center;
+            line-height: 1.2;
+        }
+        #ketchup-bottle .bottle-shine {
+            position: absolute;
+            top: 8px; left: 8px;
+            width: 8px; height: 30px;
+            background: rgba(255,255,255,0.2);
+            border-radius: 4px;
+        }
+
+        /* Waitress speech bubble */
+        #waitress-popup {
+            position: absolute;
+            top: 8%;
+            left: 50%;
+            transform: translateX(-50%) scale(0.7);
+            background: #fff;
+            border-radius: 16px;
+            padding: 16px 20px;
+            width: 82%;
+            text-align: center;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease, transform 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+            z-index: 20;
+        }
+        #waitress-popup.visible {
+            opacity: 1;
+            transform: translateX(-50%) scale(1);
+        }
+        #waitress-popup::after {
+            content: '';
+            position: absolute;
+            bottom: -12px;
+            left: 50%;
+            transform: translateX(-50%);
+            border-left: 12px solid transparent;
+            border-right: 12px solid transparent;
+            border-top: 12px solid #fff;
+        }
+        .waitress-emoji { font-size: 2.2rem; margin-bottom: 8px; }
+        #waitress-popup p {
+            color: #333;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+        #waitress-popup strong { color: #8b0000; }
+        #waitress-popup .continue-btn {
+            margin-top: 14px;
+            background: #8b0000;
+            color: #fff;
+            border: none;
+            border-radius: 20px;
+            padding: 10px 24px;
+            font-size: 0.9rem;
+            font-weight: 700;
+            cursor: pointer;
+            display: block;
+            width: 100%;
+            touch-action: manipulation;
+        }
+
+        /* ══════════════════════════════════════════════════════════
+           SCENE 3 – TRIPLE DIPPER DEBATE
+        ══════════════════════════════════════════════════════════ */
+        #scene-dipper {
+            background: radial-gradient(ellipse at 50% 30%, #1f0e00 0%, #0d0600 100%);
+            justify-content: flex-start;
+            padding-top: 0;
+            overflow-y: auto;
+        }
+
+        .dipper-header {
+            width: 100%;
+            background: linear-gradient(180deg, #8b0000 0%, #6b0000 100%);
+            padding: 20px 20px 16px;
+            text-align: center;
+            box-shadow: 0 3px 12px rgba(0,0,0,0.5);
+            flex-shrink: 0;
+        }
+        .dipper-header h2 {
+            color: #fff;
+            font-size: 1.4rem;
+            font-weight: 900;
+        }
+        .dipper-header p {
+            color: rgba(255,210,160,0.85);
+            font-size: 0.82rem;
+            margin-top: 4px;
+            line-height: 1.4;
+        }
+
+        .dipper-board {
+            padding: 16px 16px 0;
+            width: 100%;
+        }
+
+        /* The locked-in items */
+        .locked-items {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-bottom: 16px;
+        }
+        .locked-item {
+            background: rgba(255,255,255,0.07);
+            border: 1.5px solid rgba(255,255,255,0.15);
+            border-radius: 12px;
+            padding: 10px 12px;
+            text-align: center;
+            flex: 1;
+            max-width: 90px;
+        }
+        .locked-item .food-emoji { font-size: 1.6rem; }
+        .locked-item .food-name {
+            color: rgba(255,220,180,0.9);
+            font-size: 0.65rem;
+            font-weight: 600;
+            margin-top: 4px;
+            line-height: 1.3;
+        }
+        .locked-badge {
+            display: inline-block;
+            background: rgba(80,200,120,0.2);
+            border: 1px solid rgba(80,200,120,0.4);
+            color: #50c878;
+            font-size: 0.55rem;
+            font-weight: 700;
+            padding: 2px 5px;
+            border-radius: 8px;
+            margin-top: 3px;
+            letter-spacing: 0.3px;
+        }
+
+        .debate-label {
+            color: #ff6b35;
+            font-size: 0.75rem;
+            font-weight: 800;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            margin-bottom: 10px;
+        }
+
+        /* Voting options */
+        .vote-options {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-bottom: 16px;
+        }
+        .vote-card {
+            background: rgba(255,255,255,0.06);
+            border: 2px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 14px 10px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            touch-action: manipulation;
+        }
+        .vote-card:active { transform: scale(0.95); }
+        .vote-card.selected {
+            border-color: #ff6b35;
+            background: rgba(255,107,53,0.18);
+            box-shadow: 0 0 16px rgba(255,107,53,0.25);
+        }
+        .vote-card .vote-emoji { font-size: 2rem; margin-bottom: 6px; }
+        .vote-card .vote-name {
+            color: #fff;
+            font-size: 0.78rem;
+            font-weight: 700;
+        }
+        .vote-card .vote-desc {
+            color: rgba(255,255,255,0.5);
+            font-size: 0.62rem;
+            margin-top: 3px;
+            line-height: 1.3;
+        }
+
+        /* Confirm button */
+        #confirm-vote-btn {
+            width: 100%;
+            background: linear-gradient(135deg, #8b0000 0%, #cc0000 100%);
+            color: #fff;
+            border: none;
+            border-radius: 14px;
+            padding: 14px;
+            font-size: 1rem;
+            font-weight: 800;
+            letter-spacing: 0.5px;
+            opacity: 0.4;
+            pointer-events: none;
+            transition: opacity 0.3s, transform 0.2s;
+            touch-action: manipulation;
+            margin-bottom: 16px;
+        }
+        #confirm-vote-btn.ready {
+            opacity: 1;
+            pointer-events: auto;
+        }
+        #confirm-vote-btn:active { transform: scale(0.97); }
+
+        /* Verdict screen */
+        #verdict-panel {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            padding: 24px 20px;
+            text-align: center;
+        }
+        #verdict-panel.visible { display: flex; }
+        .verdict-emoji { font-size: 4rem; margin-bottom: 12px; }
+        .verdict-title {
+            color: #fff;
+            font-size: 1.5rem;
+            font-weight: 900;
+            margin-bottom: 10px;
+        }
+        .verdict-text {
+            color: rgba(255,210,160,0.85);
+            font-size: 0.9rem;
+            line-height: 1.6;
+            margin-bottom: 24px;
+        }
+
+        /* Manager card (always appears in verdict) */
+        .manager-card {
+            background: rgba(255,255,255,0.05);
+            border: 1.5px solid rgba(255,255,255,0.12);
+            border-radius: 14px;
+            padding: 14px 16px;
+            margin-bottom: 20px;
+            text-align: left;
+            width: 100%;
+        }
+        .manager-card-title {
+            color: rgba(255,150,100,0.8);
+            font-size: 0.65rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 6px;
+        }
+        .manager-quote {
+            color: rgba(255,255,255,0.7);
+            font-size: 0.82rem;
+            line-height: 1.5;
+            font-style: italic;
+        }
+
+        /* Chapter 3 button */
+        #to-chapter3-btn {
+            background: linear-gradient(135deg, #1a3a5c 0%, #0d2a4a 100%);
+            color: #fff;
+            border: 2px solid rgba(100,160,220,0.35);
+            border-radius: 14px;
+            padding: 14px 28px;
+            font-size: 0.95rem;
+            font-weight: 800;
+            cursor: pointer;
+            touch-action: manipulation;
+            letter-spacing: 0.5px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        #to-chapter3-btn:active { transform: scale(0.97); }
+        .ch3-hint {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.7rem;
+            margin-top: 8px;
+            margin-bottom: 20px;
+        }
     </style>
 </head>
 <body>
 
+    <!-- ══════════════════════════════════════════
+         SCENE 1: CHEESE PULL
+    ═══════════════════════════════════════════ -->
     <div class="scene" id="scene-cheese">
-        <h1>Cheese pull time!!</h1>
-        <div class="plate" id="plate">
-            <div id="cheese-stretch"></div>
-            <div id="mozz-stick"></div>
+
+        <div class="chilis-header">
+            <h1>🧀 Cheese Pull Time!!</h1>
+            <p>Drag the mozz stick up — stretch it as far as it'll go</p>
         </div>
-        <div id="result-text">Good pull!</div>
+
+        <div id="cheese-scene-body">
+            <div id="result-text">🔥 Good pull!!</div>
+
+            <div class="plate-wrapper">
+                <div id="cheese-stretch"></div>
+                <div id="mozz-stick"></div>
+                <div class="plate-base"></div>
+            </div>
+        </div>
+
     </div>
 
-    <script>
-        const stick = document.getElementById('mozz-stick');
-        const cheese = document.getElementById('cheese-stretch');
-        const result = document.getElementById('result-text');
-        let isDragging = false;
-        let height = 0;
+    <!-- ══════════════════════════════════════════
+         SCENE 2: KETCHUP BOTTLE
+    ═══════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-ketchup">
 
-        stick.addEventListener('touchstart', (e) => { isDragging = true; });
+        <div class="ketchup-instruction">
+            <h2>The Ketchup Bottle Lady 🍅</h2>
+            <p>Remember her? Slide the ketchup bottle to the<br><strong style="color:#ff6b6b;">edge of the table</strong> to call her over.</p>
+        </div>
 
-        document.addEventListener('touchmove', (e) => {
-            if (!isDragging) return;
-            // Stretch the cheese based on finger position
-            height = Math.min(250, Math.max(0, 300 - e.touches[0].clientY));
-            cheese.style.height = height + 'px';
-            stick.style.bottom = (50 + height) + 'px';
+        <div class="table-surface">
+            <div class="table-grain"></div>
+        </div>
 
-            // Trigger completion at 200px
-            if (height > 200) {
-                isDragging = false;
-                result.style.opacity = '1';
-                setTimeout(() => { alert("Ready for the next part of the date!"); }, 500);
-            }
-        });
+        <div id="edge-zone">
+            <span id="edge-zone-label">EDGE OF TABLE</span>
+        </div>
 
-        document.addEventListener('touchend', () => { isDragging = false; });
-    </script>
+        <!-- Draggable ketchup bottle -->
+        <div id="ketchup-bottle">
+            <div class="bottle-cap"></div>
+            <div class="bottle-neck"></div>
+            <div class="bottle-body">
+                <div class="bottle-shine"></div>
+                <div class="bottle-label">KETCHUP</div>
+            </div>
+        </div>
+
+        <!-- Waitress popup -->
+        <div id="waitress-popup">
+            <div class="waitress-emoji">👩‍🍳</div>
+            <p><strong>"Oh honey, I saw that bottle!"</strong><br><br>
+            She slid right over, topped off your chips & salsa, and made you both feel like VIPs. Best waitress at any Chili's, no contest. 🌶️</p>
+            <button class="continue-btn" id="ketchup-continue-btn">On to the real debate →</button>
+        </div>
+
+    </div>
+
+    <!-- ══════════════════════════════════════════
+         SCENE 3: TRIPLE DIPPER DEBATE
+    ═══════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-dipper">
+
+        <div class="dipper-header">
+            <h2>🍽️ The Triple Dipper Debate</h2>
+            <p>Burger sliders ✅ &nbsp;•&nbsp; Mozz sticks ✅ &nbsp;•&nbsp; The 4th pick... 🔥</p>
+        </div>
+
+        <div class="dipper-board" id="dipper-vote-section">
+
+            <!-- Locked-in items -->
+            <div class="locked-items">
+                <div class="locked-item">
+                    <div class="food-emoji">🍔</div>
+                    <div class="food-name">Burger Sliders</div>
+                    <div class="locked-badge">✓ LOCKED</div>
+                </div>
+                <div class="locked-item">
+                    <div class="food-emoji">🧀</div>
+                    <div class="food-name">Mozz Sticks</div>
+                    <div class="locked-badge">✓ LOCKED</div>
+                </div>
+                <div class="locked-item">
+                    <div class="food-emoji">🥗</div>
+                    <div class="food-name">Chips & Salsa</div>
+                    <div class="locked-badge">✓ LOCKED</div>
+                </div>
+            </div>
+
+            <div class="debate-label">⚡ The Great 4th App Debate ⚡</div>
+
+            <!-- Vote options -->
+            <div class="vote-options" id="vote-options">
+                <div class="vote-card" data-choice="wings">
+                    <div class="vote-emoji">🍗</div>
+                    <div class="vote-name">Bone-In Wings</div>
+                    <div class="vote-desc">Classic. Can't go wrong. Matt's answer.</div>
+                </div>
+                <div class="vote-card" data-choice="quesadilla">
+                    <div class="vote-emoji">🫓</div>
+                    <div class="vote-name">Quesadillas</div>
+                    <div class="vote-desc">Cheesy, safe, reliable.</div>
+                </div>
+                <div class="vote-card" data-choice="nachos">
+                    <div class="vote-emoji">🧆</div>
+                    <div class="vote-name">Loaded Nachos</div>
+                    <div class="vote-desc">Too much overlap with salsa. Controversial.</div>
+                </div>
+                <div class="vote-card" data-choice="ribs">
+                    <div class="vote-emoji">🥩</div>
+                    <div class="vote-name">Crispy Cheddar Bites</div>
+                    <div class="vote-desc">Jill's wildcard pick.</div>
+                </div>
+            </div>
+
+            <button id="confirm-vote-btn">Lock In My Pick 🔒</button>
+
+        </div>
+
+        <!-- Verdict panel (hidden until vote confirmed) -->
+        <div id="verdict-panel">
+            <div class="verdict-emoji" id="verdict-emoji">🏆</div>
+            <div class="verdict-title" id="verdict-title">The Verdict</div>
+            <div class="verdict-text" id="verdict-text"></div>
+
+            <div class="manager-card">
+                <div class="manager-card-title">🚨 Meanwhile, across the restaurant...</div>
+                <div class="manager-quote">"Hi folks, everything tasting great tonight? Just checking in! Can I get you anything? Still doing well? Great, great. I'll swing back around in two minutes."</div>
+            </div>
+
+            <button id="to-chapter3-btn">Chapter 3: Cancun 🏝️</button>
+            <p class="ch3-hint">Your greatest adventure awaits →</p>
+        </div>
+
+    </div>
+
+    <script src="script.js"></script>
 </body>
 </html>
