@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Our Year</title>
     <style>
-        /* Reset and Mobile Optimization */
+        /* Reset and Mobile Settings */
         * {
             box-sizing: border-box;
             margin: 0;
@@ -17,180 +17,203 @@
             width: 100%;
             height: 100%;
             overflow: hidden;
-            background-color: #121212;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #0d0d13;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
         }
 
-        /* Chapter Container */
-        .chapter-container {
+        /* Main Screen Container */
+        .scene-container {
             position: relative;
             width: 100%;
             height: 100%;
+            /* This will be the cartoonish parking lot of DJ's Wings */
+            background: url('djs.png') no-repeat center center;
+            background-size: cover;
             display: flex;
             justify-content: center;
             align-items: center;
         }
 
-        /* Underneath Layer: The Content Revealed */
-        .reveal-content {
+        /* The Truck Dashboard / Window Frame Layer */
+        .truck-interior {
             position: absolute;
             width: 100%;
             height: 100%;
+            background: transparent;
             display: flex;
-            flex-direction: column;
             justify-content: center;
             align-items: center;
-            padding: 30px;
-            text-align: center;
-            background: radial-gradient(circle, #2a2a2a 0%, #121212 100%);
-            color: #ffffff;
-            z-index: 1;
+            z-index: 2;
+            pointer-events: none; /* Let touches pass through to the window canvas */
         }
 
-        .couple-photo {
-            width: 80%;
-            max-width: 300px;
-            border-radius: 12px;
-            box-shadow: 0 8px 24px rgba(0,0,0,0.5);
-            margin-bottom: 24px;
-            border: 4px solid #ffffff;
-            transform: rotate(-3deg);
+        /* Stylized Driver Side Window Frame */
+        .window-frame {
+            position: absolute;
+            width: 85%;
+            height: 60%;
+            top: 15%;
+            left: 5%;
+            border-radius: 40px 100px 20px 20px; /* Gives it that curved truck window slant */
+            border: 8px solid #1a1a24;
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 40px rgba(0,0,0,0.6);
+            overflow: hidden;
+            pointer-events: auto; /* Re-enable touches for the canvas inside */
         }
 
-        .story-text {
-            font-size: 1.1rem;
-            line-height: 1.6;
-            color: #e0e0e0;
-            max-width: 85%;
-            margin-bottom: 30px;
-            -webkit-user-select: text;
-            user-select: text; /* Allows reading/selection if needed */
-        }
-
-        /* Top Layer: The Foggy Canvas */
+        /* The Foggy Canvas mapped strictly inside the window frame */
         #fogCanvas {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            z-index: 2;
-            touch-action: none; /* Prevents phone scrolling while drawing */
-            transition: opacity 0.8s ease;
+            touch-action: none;
+            transition: opacity 0.6s ease;
         }
 
-        /* Prompt Overlay to tell her what to do */
+        /* Text Prompt for Instruction */
         .instruction-overlay {
             position: absolute;
-            top: 50%;
+            top: 45%;
             left: 50%;
             transform: translate(-50%, -50%);
-            z-index: 3;
-            color: rgba(255, 255, 255, 0.8);
-            font-size: 1.3rem;
-            font-weight: 500;
+            color: rgba(255, 255, 255, 0.85);
+            font-size: 1.2rem;
+            font-weight: bold;
             text-align: center;
-            pointer-events: none; /* Let touches pass through to canvas */
-            transition: opacity 0.5s ease;
-            text-shadow: 0 2px 8px rgba(0,0,0,0.8);
+            pointer-events: none;
+            transition: opacity 0.4s ease;
+            text-shadow: 0 2px 10px rgba(0,0,0,0.9);
             width: 80%;
+            letter-spacing: 0.5px;
         }
 
-        /* Next Chapter Button (Hidden until wiped) */
+        /* The Content Revealed Underneath (The Truck Interior Memory) */
+        .reveal-content {
+            position: absolute;
+            bottom: -100%; /* Hidden off-screen initially */
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to top, rgba(15, 15, 26, 0.98) 75%, rgba(15, 15, 26, 0.85) 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            align-items: center;
+            padding: 40px 25px;
+            text-align: center;
+            color: #ffffff;
+            z-index: 5;
+            transition: transform 0.6s cubic-bezier(0.1, 1, 0.1, 1);
+            overflow-y: auto; /* Allows scrolling if your story is long */
+        }
+
+        .reveal-content.active {
+            transform: translateY(-100%); /* Slides smoothly up into view */
+        }
+
+        .couple-photo {
+            width: 85%;
+            max-width: 280px;
+            border-radius: 16px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5);
+            margin-bottom: 25px;
+            border: 5px solid #ffffff;
+            transform: rotate(-2deg);
+        }
+
+        .story-text {
+            font-size: 1.05rem;
+            line-height: 1.6;
+            color: #e2e8f0;
+            max-width: 90%;
+            margin-bottom: 35px;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        /* Next Chapter Button */
         .next-btn {
-            padding: 12px 32px;
+            padding: 14px 36px;
             font-size: 1rem;
-            font-weight: 600;
-            color: #121212;
-            background-color: #ffffff;
+            font-weight: bold;
+            color: #0f0f1a;
+            background-color: #ff477e; /* Romantic accent color */
             border: none;
-            border-radius: 25px;
-            box-shadow: 0 4px 15px rgba(255,255,255,0.2);
-            opacity: 0;
-            transform: translateY(20px);
-            transition: all 0.5s ease;
-            z-index: 4;
-            text-decoration: none;
-        }
-
-        .next-btn.visible {
-            opacity: 1;
-            transform: translateY(0);
+            border-radius: 30px;
+            box-shadow: 0 4px 15px rgba(255, 71, 126, 0.4);
+            cursor: pointer;
+            transition: background-color 0.3s ease;
         }
     </style>
 </head>
 <body>
 
-    <div class="chapter-container">
-        <!-- Instruction to guide her thumb -->
-        <div class="instruction-overlay" id="instruction">
-            Wipe the fog away...
+    <div class="scene-container">
+        
+        <div class="truck-interior">
+            <div class="window-frame" id="windowFrame">
+                <div class="instruction-overlay" id="instruction">
+                    Wipe the fogged window...
+                </div>
+                <canvas id="fogCanvas"></canvas>
+            </div>
         </div>
 
-        <!-- The Top Canvas Layer -->
-        <canvas id="fogCanvas"></canvas>
-
-        <!-- The Hidden Content Layer underneath -->
-        <div class="reveal-content">
-            <!-- PHOTO PLACEHOLDER -->
-            <!-- Make sure you upload a photo named truck-photo.jpg to GitHub later, or change this filename -->
+        <div class="reveal-content" id="revealPanel">
             <img src="truck-photo.jpg" alt="Matt and Jill" class="couple-photo">
             
-            <!-- YOUR TEXT PLACEHOLDER -->
-            <!-- Delete my bracketed note below and type exactly what you want to say to her about that night -->
             <p class="story-text">
                 [MANUAL TEXT: Matt, type your genuine story here about working together, heading to the bar with Dan, Mark, Jarod, and Hannah, rambling in your truck, and her leaning over to kiss you.]
             </p>
 
-            <!-- Unlock Button to move to Chapter 2 -->
             <button class="next-btn" id="nextBtn" onclick="nextChapter()">Continue Our Story →</button>
         </div>
+
     </div>
 
     <script>
         const canvas = document.getElementById('fogCanvas');
         const ctx = canvas.getContext('2d');
+        const windowFrame = document.getElementById('windowFrame');
         const instruction = document.getElementById('instruction');
-        const nextBtn = document.getElementById('nextBtn');
+        const revealPanel = document.getElementById('revealPanel');
         
         let isDrawing = false;
-        let totalPixels = 0;
-        let clearedPixels = 0;
 
-        // Resize canvas strictly to fit the mobile viewport
         function resizeCanvas() {
-            canvas.width = window.innerWidth;
-            canvas.height = window.innerHeight;
+            // Match the canvas bounds exactly to the responsive CSS window frame size
+            canvas.width = windowFrame.clientWidth;
+            canvas.height = windowFrame.clientHeight;
             drawFog();
         }
 
-        // Create the misty, foggy window look
         function drawFog() {
-            // Dark misty background color
-            ctx.fillStyle = '#2c3e50'; 
+            // Condensation mist colors
+            ctx.fillStyle = '#34495e'; 
             ctx.fillRect(0, 0, canvas.width, canvas.height);
             
-            // Add a subtle translucent whitish overlay to simulate condensation/frost
-            ctx.fillStyle = 'rgba(236, 240, 241, 0.15)';
+            ctx.fillStyle = 'rgba(236, 240, 241, 0.2)';
             ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-            // Add an inner vignette/blur approximation by shading the corners slightly
             const gradient = ctx.createRadialGradient(canvas.width/2, canvas.height/2, 10, canvas.width/2, canvas.height/2, canvas.width);
             gradient.addColorStop(0, 'rgba(0,0,0,0)');
-            gradient.addColorStop(1, 'rgba(0,0,0,0.4)');
+            gradient.addColorStop(1, 'rgba(0,0,0,0.5)');
             ctx.fillStyle = gradient;
             ctx.fillRect(0, 0, canvas.width, canvas.height);
         }
 
-        // Handle the wiping motion
         function wipe(x, y) {
-            ctx.globalCompositeOperation = 'destination-out'; // This cuts holes in the canvas color
+            // Get accurate coordinates inside the window element boundary
+            const rect = canvas.getBoundingClientRect();
+            const clientX = x - rect.left;
+            const clientY = y - rect.top;
+
+            ctx.globalCompositeOperation = 'destination-out';
             ctx.beginPath();
-            // A thick 50px radius is perfect for a mobile thumb wipe
-            ctx.arc(x, y, 50, 0, Math.PI * 2, false);
+            ctx.arc(clientX, clientY, 40, 0, Math.PI * 2, false); // 40px brush perfect for frame scale
             ctx.fill();
             
-            // Fade out the instruction text on first touch
             if (instruction.style.opacity !== '0') {
                 instruction.style.opacity = '0';
             }
@@ -198,32 +221,32 @@
             checkProgress();
         }
 
-        // Calculate how much fog has been cleared away
         function checkProgress() {
-            // Sample a low-resolution grid of the canvas to check transparency
             const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
             const pixels = imageData.data;
-            let alphaZeroCount = 0;
+            let clearedCount = 0;
 
-            // Loop through the alpha channel (every 4th value) in steps to save mobile CPU
+            // Faster step scanning to maximize performance on mobile devices
             for (let i = 3; i < pixels.length; i += 40) {
                 if (pixels[i] === 0) {
-                    alphaZeroCount++;
+                    clearedCount++;
                 }
             }
 
-            // If she cleared roughly 45% of the screen, trigger the reveal
-            const approximatePercentage = (alphaZeroCount / (pixels.length / 40)) * 100;
-            if (approximatePercentage > 45) {
+            const totalSampled = pixels.length / 40;
+            const percentageCleared = (clearedCount / totalSampled) * 100;
+
+            // Updated Threshold: Once she clears 55-60%, it auto-triggers the smooth reveal
+            if (percentageCleared > 55) {
                 canvas.style.opacity = '0';
                 setTimeout(() => {
                     canvas.style.display = 'none';
-                    nextBtn.classList.add('visible');
-                }, 800); // Fades completely out before allowing button click
+                    revealPanel.classList.add('active'); // Memory panel slides up smoothly
+                }, 400);
             }
         }
 
-        // Mobile Touch Listeners
+        // Mobile Touch Gestures
         canvas.addEventListener('touchstart', (e) => {
             isDrawing = true;
             const touch = e.touches[0];
@@ -240,13 +263,12 @@
             isDrawing = false;
         });
 
-        // Initialize
         window.addEventListener('resize', resizeCanvas);
-        resizeCanvas();
+        // Delay initialization slightly to guarantee DOM rendering calculations are perfect
+        setTimeout(resizeCanvas, 100);
 
-        // Placeholder function for moving to Chapter 2
         function nextChapter() {
-            alert("Chapter 1 Cleared! Ready for Chapter 2: The Cheese Pull.");
+            alert("Ready for Chapter 2: The Chili's Cheese Pull.");
         }
     </script>
 </body>
