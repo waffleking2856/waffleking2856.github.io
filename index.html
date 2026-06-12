@@ -251,7 +251,7 @@
 
             wipeCounter++;
 
-            if (wipeCounter > 45) {
+            if (wipeCounter > 200) {
                 triggerReveal();
                 return;
             }
@@ -277,7 +277,7 @@
 
             const percentageCleared = (transparentPixels / totalPixels) * 100;
 
-            if (percentageCleared >= 15) {
+            if (percentageCleared >= 60) {
                 triggerReveal();
             }
         }
