@@ -10,7 +10,7 @@
         .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: opacity 1.5s ease-in-out; opacity: 1; z-index: 1; }
         .scene.hidden { opacity: 0; pointer-events: none; z-index: -1; }
         #scene-fog { background-image: url('djs.png'); background-repeat: no-repeat; background-position: center center; background-size: cover; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .window-frame { position: absolute; width: 85%; height: 55%; top: 15%; left: 7.5%; border-radius: 40px 100px 20px 20px; border: 8px solid #111116; box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7); overflow: hidden; background-image: url('truck.png'); background-size: cover; background-position: center; }
+        .window-frame { position: absolute; width: 85%; height: 55%; top: auto; bottom: 0; left: 7.5%;  border-radius: 40px 100px 20px 20px; border: 8px solid #111116; box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7); overflow: hidden; background-image: url('truck.png'); background-size: cover; background-position: center; }
         #fogCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; outline: none; }
         .instruction-overlay { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.9); font-size: 1.2rem; font-weight: bold; text-align: center; pointer-events: none; transition: opacity 0.3s ease; text-shadow: 0 2px 10px rgba(0,0,0,0.9); width: 80%; letter-spacing: 0.5px; z-index: 3; }
         #scene-reveal { background: linear-gradient(to bottom, #1a1a24, #0d0d13); display: flex; flex-direction: column; align-items: center; padding: 40px 20px; overflow-y: auto; }
@@ -32,7 +32,7 @@
     <div class="scene hidden" id="scene-reveal">
         <img src="truck.png" alt="In the truck" class="memory-photo">
         <p class="story-text">
-            pookie, if you would have told me that night that we wouldve gotten all the way from djs to sitting on that jetti together, I wouldve told you your bat shit. I had no idea what I expected you to say when I told you I had a crush on you. I half expected to get slapped me thinks. but when you leaned over to kiss me to shut me up, you rocked my world. not only that, but you changed my life for the better more than I ever could've imagined :D.
+            I had no idea what I expected you to say when I told you I had a crush on you. I half expected to get slapped me thinks. but when you leaned over to kiss me to shut me up, you rocked my world. not only that, but you changed my life for the better more than I ever could've imagined :D.
         </p>
         <p class="hint-text">Tap the Mozz Stick</p>
         <img src="mozzstick.png" alt="Next Chapter" class="mozz-btn" onclick="goToChapter2()">
