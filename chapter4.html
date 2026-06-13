@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chapter 4 – The Farm</title>
+    <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&display=swap" rel="stylesheet">
+    <script src="script.js" defer></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body, html {
+            width: 100%; height: 100%; overflow: hidden;
+            background: #1a2a10;
+            font-family: 'Press Start 2P', monospace;
+        }
+
+        .scene {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            transition: opacity 0.9s ease; opacity: 1;
+        }
+        .scene.hidden { opacity: 0; pointer-events: none; }
+
+
+        /* ════════════════════════════════════════════
+           SCENE 1 – THE FARM
+        ════════════════════════════════════════════ */
+        #scene-farm {
+            background:
+                repeating-linear-gradient(90deg,
+                    rgba(0,0,0,0.04) 0, rgba(0,0,0,0.04) 1px,
+                    transparent 1px, transparent 16px),
+                repeating-linear-gradient(180deg,
+                    rgba(0,0,0,0.04) 0, rgba(0,0,0,0.04) 1px,
+                    transparent 1px, transparent 16px),
+                linear-gradient(180deg, #5aaa38 0%, #3a8018 60%, #2e6a10 100%);
+            overflow: hidden;
+        }
+
+        /* HUD bar at top */
+        .farm-hud {
+            position: absolute; top: 0; left: 0; right: 0;
+            background: rgba(0,0,0,0.65);
+            padding: 10px 14px;
+            display: flex; flex-direction: column;
+            align-items: center; gap: 6px;
+            z-index: 10;
+            border-bottom: 3px solid rgba(255,255,255,0.08);
+        }
+        .farm-title {
+            color: #ffe566;
+            font-size: 0.55rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 8px rgba(255,220,50,0.5);
+        }
+        .farm-counter {
+            color: #fff;
+            font-size: 0.5rem;
+            letter-spacing: 0.5px;
+        }
+        .farm-counter span {
+            color: #66ff88;
+        }
+
+        /* Progress bar */
+        .farm-progress-track {
+            width: 160px; height: 8px;
+            background: rgba(255,255,255,0.15);
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        #farm-progress-bar {
+            height: 100%; width: 0%;
+            background: linear-gradient(90deg, #66ff88 0%, #ffe566 100%);
+            border-radius: 4px;
+            transition: width 0.3s ease;
+        }
+
+        /* Each collectible item */
+        .farm-item {
+            position: absolute;
+            cursor: pointer;
+            touch-action: manipulation;
+            animation: itemBob 1.8s ease-in-out infinite;
+            z-index: 5;
+        }
+        /* Stagger bob timing so they don't all move in sync */
+        .farm-item:nth-child(2) { animation-delay: -0.3s; }
+        .farm-item:nth-child(3) { animation-delay: -0.7s; }
+        .farm-item:nth-child(4) { animation-delay: -1.1s; }
+        .farm-item:nth-child(5) { animation-delay: -0.5s; }
+        .farm-item:nth-child(6) { animation-delay: -1.4s; }
+        .farm-item:nth-child(7) { animation-delay: -0.9s; }
+        .farm-item:nth-child(8) { animation-delay: -0.2s; }
+
+        .farm-item img {
+            display: block;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            filter: drop-shadow(0 5px 4px rgba(0,0,0,0.4));
+            pointer-events: none;
+        }
+        .farm-item:active img {
+            filter: drop-shadow(0 5px 4px rgba(0,0,0,0.4)) brightness(1.4);
+        }
+
+        .farm-item.collected {
+            animation: itemPop 0.35s ease forwards !important;
+            pointer-events: none;
+        }
+
+        /* Tap hint at bottom */
+        .tap-hint {
+            position: absolute; bottom: 18px;
+            left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.35);
+            font-size: 0.42rem;
+            letter-spacing: 0.5px;
+            text-align: center;
+            pointer-events: none;
+            animation: hintBlink 1.5s step-end infinite;
+        }
+
+        @keyframes itemBob {
+            0%, 100% { transform: translateY(0); }
+            50%       { transform: translateY(-9px); }
+        }
+        @keyframes itemPop {
+            0%   { transform: scale(1); opacity: 1; }
+            40%  { transform: scale(1.35); opacity: 0.9; }
+            100% { transform: scale(0); opacity: 0; }
+        }
+        @keyframes hintBlink {
+            0%, 60% { opacity: 1; } 61%, 100% { opacity: 0; }
+        }
+
+
+        /* ════════════════════════════════════════════
+           SCENE 2 – STARDEW WEDDING REVEAL
+        ════════════════════════════════════════════ */
+        #scene-wedding {
+            background: radial-gradient(ellipse at 50% 40%, #0e1a28 0%, #050a10 100%);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: 16px;
+            padding: 24px;
+            overflow: hidden;
+        }
+
+        /* Stars background */
+        #scene-wedding::before {
+            content: '';
+            position: absolute; inset: 0;
+            background-image:
+                radial-gradient(1.5px 1.5px at 10% 15%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                radial-gradient(1px 1px at 25% 40%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(2px 2px at 40% 10%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 55% 55%, rgba(255,255,255,0.4) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 70% 25%, rgba(255,255,255,0.7) 0%, transparent 100%),
+                radial-gradient(1px 1px at 80% 70%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(2px 2px at 90% 5%, rgba(255,255,255,0.6) 0%, transparent 100%),
+                radial-gradient(1px 1px at 15% 75%, rgba(255,255,255,0.5) 0%, transparent 100%),
+                radial-gradient(1.5px 1.5px at 60% 85%, rgba(255,255,255,0.6) 0%, transparent 100%);
+            pointer-events: none;
+        }
+
+        .reveal-line {
+            font-family: 'Press Start 2P', monospace;
+            text-align: center;
+            opacity: 0;
+            transform: translateY(12px);
+            transition: opacity 0.8s ease, transform 0.8s ease;
+            position: relative; z-index: 2;
+        }
+        .reveal-line.show {
+            opacity: 1; transform: translateY(0);
+        }
+        #meanwhile-text {
+            color: rgba(255,255,255,0.55);
+            font-size: 0.65rem;
+            letter-spacing: 2px;
+        }
+        #stardew-text {
+            color: #ffe566;
+            font-size: 0.85rem;
+            letter-spacing: 1px;
+            text-shadow: 0 0 16px rgba(255,220,50,0.6);
+        }
+
+        #wedding-photo {
+            max-width: 88%; max-height: 40vh;
+            object-fit: contain;
+            border-radius: 8px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.7), 0 0 0 3px rgba(255,220,50,0.25);
+            image-rendering: pixelated;
+            opacity: 0;
+            transform: scale(0.85);
+            transition: opacity 1s ease, transform 1s ease;
+            position: relative; z-index: 2;
+        }
+        #wedding-photo.show {
+            opacity: 1; transform: scale(1);
+        }
+
+        /* YOUR TITLE: edit the text in the HTML below */
+        #anniversary-title {
+            color: #ffe566;
+            font-size: 0.75rem;
+            text-align: center;
+            line-height: 1.8;
+            text-shadow: 0 0 20px rgba(255,210,50,0.6);
+            opacity: 0;
+            transform: translateY(14px);
+            transition: opacity 0.9s ease, transform 0.9s ease;
+            position: relative; z-index: 2;
+        }
+        #anniversary-title.show {
+            opacity: 1; transform: translateY(0);
+        }
+
+        #to-anniversary-btn {
+            background: transparent;
+            color: rgba(255,255,255,0.5);
+            border: 1.5px solid rgba(255,255,255,0.2);
+            border-radius: 20px;
+            padding: 10px 24px;
+            font-family: 'Press Start 2P', monospace;
+            font-size: 0.48rem;
+            letter-spacing: 1px;
+            touch-action: manipulation; pointer-events: auto;
+            -webkit-appearance: none; cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.6s ease;
+            position: relative; z-index: 2;
+        }
+        #to-anniversary-btn.show { opacity: 1; }
+
+        /* Confetti */
+        .confetti-piece {
+            position: absolute;
+            top: -20px;
+            border-radius: 2px;
+            pointer-events: none;
+            animation: confettiFall linear forwards;
+            z-index: 3;
+        }
+        @keyframes confettiFall {
+            0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0.2; }
+        }
+
+
+        /* ════════════════════════════════════════════
+           SCENE 3 – ANNIVERSARY FINALE
+        ════════════════════════════════════════════ */
+        #scene-anniversary {
+            background: linear-gradient(180deg, #0a0818 0%, #060510 100%);
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+        }
+        .anniversary-scroll {
+            display: flex; flex-direction: column;
+            align-items: center;
+            padding: 50px 24px 60px;
+            width: 100%; min-height: 100%;
+        }
+
+        /* YOUR TITLE: replace [YOUR TITLE HERE] in the HTML */
+        .anniversary-heading {
+            font-family: 'Press Start 2P', monospace;
+            color: #ffe566;
+            font-size: 0.7rem;
+            text-align: center;
+            line-height: 2;
+            margin-bottom: 30px;
+            text-shadow: 0 0 20px rgba(255,210,50,0.5);
+        }
+
+        /* rename us4.png to whatever your photo is */
+        .anniversary-photo {
+            width: 90%; max-width: 340px;
+            border-radius: 12px;
+            box-shadow: 0 8px 40px rgba(0,0,0,0.7),
+                        0 0 0 3px rgba(255,220,100,0.2);
+            margin-bottom: 30px;
+            object-fit: cover;
+            border: 3px solid rgba(255,220,100,0.15);
+        }
+
+        /* YOUR TEXT: write your final message to Jill below */
+        .anniversary-text {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            color: rgba(255,210,160,0.9);
+            font-size: 1rem;
+            line-height: 1.9;
+            text-align: center;
+            max-width: 95%;
+            -webkit-user-select: text; user-select: text;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════
+         SCENE 1: THE FARM
+    ═════════════════════════════════════════ -->
+    <div class="scene" id="scene-farm">
+
+        <div class="farm-hud">
+            <p class="farm-title">Jill's aminals 🐾</p>
+            <p class="farm-counter">collected: <span id="collected-count">0</span> / 8</p>
+            <div class="farm-progress-track">
+                <div id="farm-progress-bar"></div>
+            </div>
+        </div>
+
+        <!-- Items are injected here by script.js -->
+
+        <p class="tap-hint">tap to collect</p>
+
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SCENE 2: STARDEW WEDDING REVEAL
+    ═════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-wedding">
+
+        <p class="reveal-line" id="meanwhile-text">meanwhile...</p>
+        <p class="reveal-line" id="stardew-text">in Stardew Valley 🌾</p>
+
+        <img src="stardew.png" alt="our Stardew wedding" id="wedding-photo">
+
+        <!-- YOUR TITLE: what do you want the big reveal text to say? -->
+        <h2 class="reveal-line" id="anniversary-title">[YOUR TITLE HERE]</h2>
+
+        <button id="to-anniversary-btn">one more thing →</button>
+
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SCENE 3: ANNIVERSARY FINALE
+    ═════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-anniversary">
+
+        <div class="anniversary-scroll">
+
+            <!-- YOUR TITLE: the big heading she sees at the end -->
+            <h1 class="anniversary-heading">[YOUR TITLE HERE]</h1>
+
+            <!-- rename us4.png to match your actual photo filename -->
+            <img src="us4.png" alt="us" class="anniversary-photo">
+
+            <!-- YOUR TEXT: your final message to Jill — make it count -->
+            <p class="anniversary-text">[YOUR FINAL MESSAGE TO JILL HERE]</p>
+
+        </div>
+
+    </div>
+
+</body>
+</html>

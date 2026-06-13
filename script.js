@@ -669,6 +669,145 @@ if (folderScene) {
 
 
 // ==========================================
-// CHAPTER 4 LOGIC (placeholder)
+// CHAPTER 4: ALL SCENE LOGIC
 // ==========================================
-// (Chapter 4 existence checks will go here)
+const farmScene = document.getElementById('scene-farm');
+
+if (farmScene) {
+
+    // ── SCENE 1: FARM COLLECTION ───────────────────────────────────
+    const ITEMS = [
+        { src: 'chicken.png', l: '8%',  t: '20%', w: 72 },
+        { src: 'duck.png',    l: '58%', t: '16%', w: 72 },
+        { src: 'cow1.png',    l: '4%',  t: '52%', w: 80 },
+        { src: 'cow2.png',    l: '56%', t: '58%', w: 80 },
+        { src: 'goat.png',    l: '28%', t: '68%', w: 72 },
+        { src: 'pig.png',     l: '66%', t: '38%', w: 72 },
+        { src: 'wine.png',    l: '20%', t: '34%', w: 56 },
+        { src: 'wine.png',    l: '40%', t: '75%', w: 56 },
+    ];
+
+    const TOTAL     = ITEMS.length;
+    let collected   = 0;
+    let farmDone    = false;
+
+    const countEl   = document.getElementById('collected-count');
+    const progressBar = document.getElementById('farm-progress-bar');
+
+    // Build item elements dynamically
+    ITEMS.forEach((item, i) => {
+        const wrap = document.createElement('div');
+        wrap.className = 'farm-item';
+        wrap.style.left = item.l;
+        wrap.style.top  = item.t;
+        wrap.style.animationDelay = `${-(i * 0.23)}s`;
+
+        const img = document.createElement('img');
+        img.src       = item.src;
+        img.style.width = item.w + 'px';
+        img.draggable = false;
+        wrap.appendChild(img);
+        farmScene.appendChild(wrap);
+
+        function collectItem(e) {
+            if (wrap.classList.contains('collected') || farmDone) return;
+            const cx = (e.touches ? e.touches[0].clientX : e.clientX);
+            const cy = (e.touches ? e.touches[0].clientY : e.clientY);
+            wrap.classList.add('collected');
+            spawnSparkles(cx, cy);
+            collected++;
+            countEl.textContent = collected;
+            progressBar.style.width = (collected / TOTAL * 100) + '%';
+            if (collected >= TOTAL) {
+                farmDone = true;
+                setTimeout(triggerWeddingReveal, 700);
+            }
+        }
+
+        wrap.addEventListener('touchstart', (e) => {
+            e.preventDefault();
+            collectItem(e);
+        }, { passive: false });
+        wrap.addEventListener('click', collectItem);
+    });
+
+    // Sparkle burst on collection
+    function spawnSparkles(x, y) {
+        const colors = ['#ffe566', '#ff9933', '#66ff88', '#ff66cc', '#66eeff'];
+        for (let i = 0; i < 8; i++) {
+            const dot = document.createElement('div');
+            const angle = (i / 8) * Math.PI * 2;
+            const dist  = 38 + Math.random() * 36;
+            dot.style.cssText = `
+                position:fixed; width:10px; height:10px; border-radius:50%;
+                background:${colors[i % colors.length]};
+                left:${x}px; top:${y}px; pointer-events:none; z-index:200;
+            `;
+            document.body.appendChild(dot);
+            dot.animate([
+                { transform: 'translate(-50%,-50%) scale(1)', opacity: 1 },
+                { transform: `translate(calc(-50% + ${Math.cos(angle)*dist}px),
+                               calc(-50% + ${Math.sin(angle)*dist}px)) scale(0)`,
+                  opacity: 0 }
+            ], { duration: 480, easing: 'ease-out' }).onfinish = () => dot.remove();
+        }
+    }
+
+
+    // ── SCENE 2: WEDDING REVEAL SEQUENCE ──────────────────────────
+    function triggerWeddingReveal() {
+        ch2ShowScene('scene-farm', 'scene-wedding');
+
+        // Sequential reveal after scene fade (850ms)
+        const seq = [
+            [950,  () => document.getElementById('meanwhile-text').classList.add('show')],
+            [2300, () => document.getElementById('stardew-text').classList.add('show')],
+            [3600, () => {
+                document.getElementById('wedding-photo').classList.add('show');
+                startConfetti();
+            }],
+            [4600, () => document.getElementById('anniversary-title').classList.add('show')],
+            [5500, () => document.getElementById('to-anniversary-btn').classList.add('show')],
+        ];
+        seq.forEach(([delay, fn]) => setTimeout(fn, delay));
+    }
+
+    // Confetti rain
+    function startConfetti() {
+        const colors = ['#ffe566', '#ff6699', '#66ffaa', '#6699ff', '#ff9933', '#cc66ff'];
+        const weddingScene = document.getElementById('scene-wedding');
+        for (let i = 0; i < 48; i++) {
+            setTimeout(() => {
+                const p = document.createElement('div');
+                p.className = 'confetti-piece';
+                const size = 5 + Math.random() * 8;
+                p.style.cssText = `
+                    left:${Math.random() * 100}%;
+                    width:${size}px; height:${size}px;
+                    background:${colors[Math.floor(Math.random() * colors.length)]};
+                    border-radius:${Math.random() > 0.5 ? '50%' : '2px'};
+                    animation-duration:${1.4 + Math.random() * 1.2}s;
+                    animation-delay:${Math.random() * 0.3}s;
+                `;
+                weddingScene.appendChild(p);
+                setTimeout(() => p.remove(), 3500);
+            }, i * 55);
+        }
+    }
+
+    // To-anniversary button
+    const toAnniversaryBtn = document.getElementById('to-anniversary-btn');
+    if (toAnniversaryBtn) {
+        let annFired = false;
+        function goToAnniversary(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (annFired) return;
+            annFired = true;
+            ch2ShowScene('scene-wedding', 'scene-anniversary');
+        }
+        toAnniversaryBtn.addEventListener('touchstart', goToAnniversary, { passive: false });
+        toAnniversaryBtn.addEventListener('click', goToAnniversary);
+    }
+
+}
