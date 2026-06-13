@@ -684,7 +684,6 @@ if (farmScene) {
         { src: 'goat.png',    l: '28%', t: '68%', w: 72 },
         { src: 'pig.png',     l: '66%', t: '38%', w: 72 },
         { src: 'wine.png',    l: '20%', t: '34%', w: 56 },
-        { src: 'wine.png',    l: '40%', t: '75%', w: 56 },
     ];
 
     const TOTAL     = ITEMS.length;
