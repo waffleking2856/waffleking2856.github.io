@@ -4,53 +4,347 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Our Year</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
     <style>
-        /* Reset and Mobile Settings */
-        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
-        body, html { width: 100%; height: 100%; background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+        *, *::before, *::after {
+            box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body, html {
+            width: 100%; height: 100%;
+            background: linear-gradient(180deg, #04040e 0%, #080818 50%, #060412 100%);
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            overflow-x: hidden; overflow-y: auto;
+            color: #fff;
+        }
 
-        /* Scene Management */
-        .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: opacity 1.5s ease-in-out; opacity: 1; z-index: 1; }
-        .scene.hidden { opacity: 0; pointer-events: none; z-index: -1; }
+        /* ── Twinkling stars background ── */
+        .star {
+            position: fixed;
+            border-radius: 50%;
+            background: #fff;
+            pointer-events: none;
+            animation: twinkle ease-in-out infinite alternate;
+        }
+        @keyframes twinkle {
+            from { opacity: var(--o-min); transform: scale(1); }
+            to   { opacity: var(--o-max); transform: scale(1.4); }
+        }
 
-        /* --- SCENE 1: THE FOGGY WINDOW --- */
-        #scene-fog { background-image: url('djs.png'); background-repeat: no-repeat; background-position: center center; background-size: cover; display: flex; justify-content: center; align-items: center; overflow: hidden; }
-        .window-frame { position: absolute; width: 85%; height: 55%; top: 15%; left: 7.5%; border-radius: 40px 100px 20px 20px; border: 8px solid #111116; box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7); overflow: hidden; background-image: url('truck.png'); background-size: cover; background-position: center; }
-        #fogCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; outline: none; }
-        .instruction-overlay { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); color: rgba(255, 255, 255, 0.9); font-size: 1.2rem; font-weight: bold; text-align: center; pointer-events: none; transition: opacity 0.3s ease; text-shadow: 0 2px 10px rgba(0,0,0,0.9); width: 80%; letter-spacing: 0.5px; z-index: 3; }
+        /* ── Page layout ── */
+        .page {
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 48px 28px 52px;
+            position: relative;
+            z-index: 1;
+            gap: 0;
+        }
 
-        /* --- SCENE 1 REVEAL: TRUCK & TEXT --- */
-        #scene-reveal { background: linear-gradient(to bottom, #1a1a24, #0d0d13); display: flex; flex-direction: column; align-items: center; padding: 40px 20px; overflow-y: auto; }
-        .memory-photo { width: 90%; max-width: 320px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); margin-bottom: 30px; border: 4px solid #fff; object-fit: cover; }
-        .story-text { color: #e2e8f0; font-size: 1.1rem; line-height: 1.6; text-align: center; max-width: 95%; margin-bottom: 40px; -webkit-user-select: text; user-select: text; }
-        .mozz-btn { width: 120px; height: auto; cursor: pointer; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 40px; }
-        .mozz-btn:active { transform: scale(0.9); }
-        .hint-text { color: #ff477e; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+        /* ── Constellation SVG ── */
+        .constellation-wrap {
+            width: 100%;
+            max-width: 320px;
+            margin-bottom: 20px;
+        }
+        .constellation-wrap svg {
+            width: 100%; height: auto;
+            overflow: visible;
+        }
+        .star-pulse {
+            animation: starPulse 2.8s ease-in-out infinite alternate;
+        }
+        .star-pulse-b {
+            animation: starPulse 2.8s ease-in-out infinite alternate-reverse;
+        }
+        @keyframes starPulse {
+            from { r: 4.5; opacity: 0.85; }
+            to   { r: 6;   opacity: 1; }
+        }
+
+        /* ── Title ── */
+        .title {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-size: 3.2rem;
+            font-weight: 700;
+            letter-spacing: 1px;
+            text-align: center;
+            color: #fff;
+            text-shadow:
+                0 0 30px rgba(200,180,255,0.35),
+                0 2px 4px rgba(0,0,0,0.5);
+            margin-bottom: 6px;
+            line-height: 1;
+        }
+        .title-year {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-size: 1rem;
+            color: rgba(200,180,255,0.6);
+            letter-spacing: 4px;
+            text-align: center;
+            margin-bottom: 28px;
+            text-transform: uppercase;
+        }
+
+        /* ── Divider ── */
+        .divider {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            width: 80%;
+            max-width: 280px;
+            margin-bottom: 24px;
+        }
+        .divider-line {
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
+        }
+        .divider-diamond {
+            width: 5px; height: 5px;
+            background: rgba(200,180,255,0.5);
+            transform: rotate(45deg);
+            flex-shrink: 0;
+        }
+
+        /* ── Intro text — YOUR TEXT HERE ── */
+        .intro-text {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-size: 0.95rem;
+            color: rgba(220,210,255,0.7);
+            text-align: center;
+            line-height: 1.75;
+            max-width: 300px;
+            margin-bottom: 32px;
+            -webkit-user-select: text;
+            user-select: text;
+        }
+
+        /* ── Chapter list ── */
+        .chapters {
+            display: flex;
+            flex-direction: column;
+            gap: 0;
+            width: 100%;
+            max-width: 300px;
+            margin-bottom: 36px;
+        }
+        .chapter-row {
+            display: flex;
+            align-items: center;
+            gap: 14px;
+            padding: 11px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.06);
+        }
+        .chapter-row:first-child { border-top: 1px solid rgba(255,255,255,0.06); }
+        .ch-numeral {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-size: 0.75rem;
+            color: rgba(200,180,255,0.45);
+            min-width: 24px;
+            text-align: right;
+            letter-spacing: 1px;
+        }
+        .ch-dot {
+            width: 4px; height: 4px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.2);
+            flex-shrink: 0;
+        }
+        .ch-name {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.55);
+            letter-spacing: 0.5px;
+            font-weight: 400;
+        }
+        .ch-icon {
+            margin-left: auto;
+            font-size: 0.85rem;
+            opacity: 0.4;
+        }
+
+        /* ── Begin button ── */
+        .begin-btn {
+            font-family: 'Playfair Display', Georgia, serif;
+            font-style: italic;
+            font-size: 1.05rem;
+            color: #fff;
+            background: transparent;
+            border: 1.5px solid rgba(200,180,255,0.35);
+            border-radius: 50px;
+            padding: 14px 44px;
+            cursor: pointer;
+            touch-action: manipulation;
+            pointer-events: auto;
+            -webkit-appearance: none;
+            letter-spacing: 1px;
+            transition: border-color 0.3s, background 0.3s, transform 0.15s;
+            animation: btnGlow 3s ease-in-out infinite alternate;
+            margin-bottom: 24px;
+        }
+        .begin-btn:active { transform: scale(0.97); }
+        @keyframes btnGlow {
+            from { box-shadow: 0 0 10px rgba(200,180,255,0.1); border-color: rgba(200,180,255,0.25); }
+            to   { box-shadow: 0 0 22px rgba(200,180,255,0.3); border-color: rgba(200,180,255,0.55); }
+        }
+
+        /* ── Byline ── */
+        .byline {
+            font-size: 0.65rem;
+            color: rgba(255,255,255,0.18);
+            letter-spacing: 2px;
+            text-transform: uppercase;
+            text-align: center;
+        }
     </style>
-    
-    <script src="script.js" defer></script>
 </head>
 <body>
 
-    <div class="scene" id="scene-fog">
-        <div class="window-frame" id="windowFrame">
-            <div class="instruction-overlay" id="instruction">
-                Wipe the fogged window...
-            </div>
-            <canvas id="fogCanvas"></canvas>
+    <div class="page">
+
+        <!-- Constellation graphic -->
+        <div class="constellation-wrap">
+            <svg viewBox="0 0 300 160" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                        <feGaussianBlur stdDeviation="4" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                    <filter id="glow-sm" x="-100%" y="-100%" width="300%" height="300%">
+                        <feGaussianBlur stdDeviation="2" result="blur"/>
+                        <feMerge><feMergeNode in="blur"/><feMergeNode in="SourceGraphic"/></feMerge>
+                    </filter>
+                </defs>
+
+                <!-- Outer constellation lines -->
+                <line x1="95" y1="80" x2="135" y2="44" stroke="rgba(200,180,255,0.12)" stroke-width="0.8"/>
+                <line x1="205" y1="80" x2="165" y2="44" stroke="rgba(200,180,255,0.12)" stroke-width="0.8"/>
+                <line x1="95" y1="80" x2="72"  y2="112" stroke="rgba(200,180,255,0.10)" stroke-width="0.8"/>
+                <line x1="205" y1="80" x2="228" y2="112" stroke="rgba(200,180,255,0.10)" stroke-width="0.8"/>
+                <line x1="135" y1="44" x2="165" y2="44" stroke="rgba(200,180,255,0.08)" stroke-width="0.8"/>
+
+                <!-- Small satellite stars -->
+                <circle cx="135" cy="44"  r="2"   fill="rgba(220,210,255,0.55)" filter="url(#glow-sm)"/>
+                <circle cx="165" cy="44"  r="1.5" fill="rgba(220,210,255,0.45)" filter="url(#glow-sm)"/>
+                <circle cx="72"  cy="112" r="1.5" fill="rgba(220,210,255,0.40)" filter="url(#glow-sm)"/>
+                <circle cx="228" cy="112" r="1.5" fill="rgba(220,210,255,0.40)" filter="url(#glow-sm)"/>
+                <circle cx="150" cy="130" r="1"   fill="rgba(255,255,255,0.25)"/>
+                <circle cx="58"  cy="58"  r="1"   fill="rgba(255,255,255,0.20)"/>
+                <circle cx="242" cy="58"  r="1"   fill="rgba(255,255,255,0.20)"/>
+
+                <!-- Animated dashed connector between the two main stars -->
+                <line x1="100" y1="80" x2="200" y2="80"
+                      stroke="rgba(200,180,255,0.22)" stroke-width="1"
+                      stroke-dasharray="5,5">
+                    <animate attributeName="stroke-dashoffset"
+                             from="0" to="-20" dur="2.5s" repeatCount="indefinite"/>
+                </line>
+
+                <!-- Main star — Matt -->
+                <circle cx="95" cy="80" r="4.5" fill="#fff" filter="url(#glow)">
+                    <animate attributeName="r" values="4.5;6;4.5" dur="2.8s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.85;1;0.85" dur="2.8s" repeatCount="indefinite"/>
+                </circle>
+
+                <!-- Main star — Jill -->
+                <circle cx="205" cy="80" r="4.5" fill="#e8d8ff" filter="url(#glow)">
+                    <animate attributeName="r" values="4.5;6;4.5" dur="2.8s" begin="1.4s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.85;1;0.85" dur="2.8s" begin="1.4s" repeatCount="indefinite"/>
+                </circle>
+            </svg>
         </div>
+
+        <!-- Title -->
+        <h1 class="title">Our Year</h1>
+        <p class="title-year">a journey</p>
+
+        <!-- Divider -->
+        <div class="divider">
+            <div class="divider-line"></div>
+            <div class="divider-diamond"></div>
+            <div class="divider-line"></div>
+        </div>
+
+        <!-- YOUR TEXT: write a short line or two to Jill about what this is -->
+        <p class="intro-text">[YOUR INTRO TEXT HERE — a line or two to Jill about what she's about to experience]</p>
+
+        <!-- Chapter overview -->
+        <div class="chapters">
+            <div class="chapter-row">
+                <span class="ch-numeral">I</span>
+                <div class="ch-dot"></div>
+                <!-- YOUR TEXT: a teaser for chapter 1, e.g. "where it started" -->
+                <span class="ch-name">[chapter 1 teaser]</span>
+                <span class="ch-icon">🍺</span>
+            </div>
+            <div class="chapter-row">
+                <span class="ch-numeral">II</span>
+                <div class="ch-dot"></div>
+                <!-- YOUR TEXT: a teaser for chapter 2, e.g. "our usual spot" -->
+                <span class="ch-name">[chapter 2 teaser]</span>
+                <span class="ch-icon">🌶️</span>
+            </div>
+            <div class="chapter-row">
+                <span class="ch-numeral">III</span>
+                <div class="ch-dot"></div>
+                <!-- YOUR TEXT: a teaser for chapter 3, e.g. "the big trip" -->
+                <span class="ch-name">[chapter 3 teaser]</span>
+                <span class="ch-icon">🌊</span>
+            </div>
+            <div class="chapter-row">
+                <span class="ch-numeral">IV</span>
+                <div class="ch-dot"></div>
+                <!-- YOUR TEXT: a teaser for chapter 4, e.g. "home" -->
+                <span class="ch-name">[chapter 4 teaser]</span>
+                <span class="ch-icon">🌾</span>
+            </div>
+        </div>
+
+        <!-- Begin button -->
+        <button class="begin-btn" id="begin-btn">begin →</button>
+
+        <!-- YOUR BYLINE: e.g. "made for jill, with love" -->
+        <p class="byline">[YOUR BYLINE HERE]</p>
+
     </div>
 
-    <div class="scene hidden" id="scene-reveal">
-        <img src="truck.png" alt="In the truck" class="memory-photo">
-        
-        <p class="story-text">
-            pookie, if you would have told me that night that we wouldve gotten all the way from djs to sitting on that jetti together, I wouldve told you your bat shit. I had no idea what I expected you to say when I told you I had a crush on you. I half expected to get slapped me thinks. but when you leaned over to kiss me to shut me up, you rocked my world. not only that, but you changed my life for the better more than I ever could've imagined :D.
-        </p>
+    <script>
+        // Twinkling star field
+        for (let i = 0; i < 90; i++) {
+            const s = document.createElement('div');
+            const sz = Math.random() < 0.25 ? 2 : 1;
+            const oMin = (0.1 + Math.random() * 0.3).toFixed(2);
+            const oMax = (parseFloat(oMin) + 0.2 + Math.random() * 0.4).toFixed(2);
+            s.className = 'star';
+            s.style.cssText = `
+                left:${Math.random()*100}%;
+                top:${Math.random()*100}%;
+                width:${sz}px; height:${sz}px;
+                --o-min:${oMin}; --o-max:${oMax};
+                animation-duration:${2+Math.random()*2.5}s;
+                animation-delay:${Math.random()*3}s;
+            `;
+            document.body.appendChild(s);
+        }
 
-        <p class="hint-text">Tap the Mozz Stick</p>
-        <img src="mozzstick.png" alt="Next Chapter" class="mozz-btn" onclick="goToChapter2()">
-    </div>
+        // Begin button — Safari-safe touchstart
+        const btn = document.getElementById('begin-btn');
+        let fired = false;
+        function goBegin(e) {
+            e.preventDefault();
+            if (fired) return;
+            fired = true;
+            window.location.href = 'chapter1.html';
+        }
+        btn.addEventListener('touchstart', goBegin, { passive: false });
+        btn.addEventListener('click', goBegin);
+    </script>
 
 </body>
 </html>

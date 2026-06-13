@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chapter 1 – The Spark</title>
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+        body, html { width: 100%; height: 100%; background-color: #000000; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; overflow: hidden; }
+        .scene { position: absolute; top: 0; left: 0; width: 100%; height: 100%; transition: opacity 1.5s ease-in-out; opacity: 1; z-index: 1; }
+        .scene.hidden { opacity: 0; pointer-events: none; z-index: -1; }
+        #scene-fog { background-image: url('djs.png'); background-repeat: no-repeat; background-position: center center; background-size: cover; display: flex; justify-content: center; align-items: center; overflow: hidden; }
+        .window-frame { position: absolute; width: 85%; height: 55%; top: 15%; left: 7.5%; border-radius: 40px 100px 20px 20px; border: 8px solid #111116; box-shadow: inset 0 0 20px rgba(0,0,0,0.9), 0 0 40px rgba(0,0,0,0.7); overflow: hidden; background-image: url('truck.png'); background-size: cover; background-position: center; }
+        #fogCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; touch-action: none; outline: none; }
+        .instruction-overlay { position: absolute; top: 45%; left: 50%; transform: translate(-50%, -50%); color: rgba(255,255,255,0.9); font-size: 1.2rem; font-weight: bold; text-align: center; pointer-events: none; transition: opacity 0.3s ease; text-shadow: 0 2px 10px rgba(0,0,0,0.9); width: 80%; letter-spacing: 0.5px; z-index: 3; }
+        #scene-reveal { background: linear-gradient(to bottom, #1a1a24, #0d0d13); display: flex; flex-direction: column; align-items: center; padding: 40px 20px; overflow-y: auto; }
+        .memory-photo { width: 90%; max-width: 320px; border-radius: 12px; box-shadow: 0 8px 20px rgba(0,0,0,0.6); margin-bottom: 30px; border: 4px solid #fff; object-fit: cover; }
+        .story-text { color: #e2e8f0; font-size: 1.1rem; line-height: 1.6; text-align: center; max-width: 95%; margin-bottom: 40px; -webkit-user-select: text; user-select: text; }
+        .mozz-btn { width: 120px; height: auto; cursor: pointer; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); transition: transform 0.2s; margin-bottom: 40px; }
+        .mozz-btn:active { transform: scale(0.9); }
+        .hint-text { color: #ff477e; font-size: 0.9rem; font-weight: bold; margin-bottom: 10px; text-transform: uppercase; letter-spacing: 1px; }
+    </style>
+    <script src="script.js" defer></script>
+</head>
+<body>
+    <div class="scene" id="scene-fog">
+        <div class="window-frame" id="windowFrame">
+            <div class="instruction-overlay" id="instruction">Wipe the fogged window...</div>
+            <canvas id="fogCanvas"></canvas>
+        </div>
+    </div>
+    <div class="scene hidden" id="scene-reveal">
+        <img src="truck.png" alt="In the truck" class="memory-photo">
+        <p class="story-text">
+            pookie, if you would have told me that night that we wouldve gotten all the way from djs to sitting on that jetti together, I wouldve told you your bat shit. I had no idea what I expected you to say when I told you I had a crush on you. I half expected to get slapped me thinks. but when you leaned over to kiss me to shut me up, you rocked my world. not only that, but you changed my life for the better more than I ever could've imagined :D.
+        </p>
+        <p class="hint-text">Tap the Mozz Stick</p>
+        <img src="mozzstick.png" alt="Next Chapter" class="mozz-btn" onclick="goToChapter2()">
+    </div>
+</body>
+</html>
