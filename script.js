@@ -489,9 +489,183 @@ if (toChapter3Btn) {
 
 
 // ==========================================
-// CHAPTER 3 LOGIC (placeholder)
+// CHAPTER 3: ALL SCENE LOGIC
 // ==========================================
-// (Chapter 3 existence checks will go here)
+const folderScene = document.getElementById('scene-folder');
+
+if (folderScene) {
+
+    // ── SCENE 1: FOLDER DRAG OPEN ──────────────────────────────────
+    const folderFlap = document.getElementById('folder-flap');
+    let flapStartY  = null;
+    let flapDragging = false;
+    let flapDone    = false;
+
+    folderFlap.addEventListener('touchstart', (e) => {
+        e.preventDefault();
+        if (flapDone) return;
+        flapDragging = true;
+        flapStartY   = e.touches[0].clientY;
+    }, { passive: false });
+
+    document.addEventListener('touchmove', (e) => {
+        if (!flapDragging || flapDone) return;
+        e.preventDefault();
+        const dy = Math.max(0, Math.min(220, flapStartY - e.touches[0].clientY));
+        folderFlap.style.transform = `translateY(-${dy}px)`;
+        if (dy >= 130) openFolder();
+    }, { passive: false });
+
+    document.addEventListener('touchend', () => {
+        if (flapDone) return;
+        flapDragging = false;
+        // Snap back if not opened far enough
+        folderFlap.style.transition = 'transform 0.3s ease';
+        folderFlap.style.transform  = 'translateY(0)';
+        setTimeout(() => { folderFlap.style.transition = ''; }, 320);
+    });
+
+    function openFolder() {
+        if (flapDone) return;
+        flapDone     = true;
+        flapDragging = false;
+        folderFlap.style.transition = 'transform 0.4s cubic-bezier(0.4, 0, 0.2, 1)';
+        folderFlap.style.transform  = 'translateY(-500px)';
+        setTimeout(() => {
+            ch2ShowScene('scene-folder', 'scene-gallery');
+        }, 550);
+    }
+
+
+    // ── SCENE 2: CANCUN GALLERY SWIPE ─────────────────────────────
+    const galleryTrack   = document.getElementById('gallery-track');
+    const galleryDoneBtn = document.getElementById('gallery-done-btn');
+    const dots           = document.querySelectorAll('.dot');
+
+    if (galleryTrack) {
+        const TOTAL_SLIDES = 4;
+        let currentSlide = 0;
+        let gStartX      = null;
+        let gDragging    = false;
+
+        function setSlide(n, animate) {
+            currentSlide = Math.max(0, Math.min(TOTAL_SLIDES - 1, n));
+            galleryTrack.style.transition = animate ? 'transform 0.32s ease' : 'none';
+            galleryTrack.style.transform  = `translateX(-${currentSlide * 100}%)`;
+            dots.forEach((d, i) => d.classList.toggle('active', i === currentSlide));
+            if (currentSlide === TOTAL_SLIDES - 1 && galleryDoneBtn) {
+                galleryDoneBtn.classList.add('visible');
+            }
+        }
+
+        setSlide(0, false);
+
+        galleryTrack.addEventListener('touchstart', (e) => {
+            gStartX   = e.touches[0].clientX;
+            gDragging = true;
+        }, { passive: true });
+
+        galleryTrack.addEventListener('touchend', (e) => {
+            if (!gDragging || gStartX === null) return;
+            const dx = e.changedTouches[0].clientX - gStartX;
+            if (Math.abs(dx) > 48) setSlide(currentSlide + (dx < 0 ? 1 : -1), true);
+            gDragging = false;
+        }, { passive: true });
+    }
+
+    if (galleryDoneBtn) {
+        let galFired = false;
+        function galleryDone(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (galFired) return;
+            galFired = true;
+            ch2ShowScene('scene-gallery', 'scene-alarm');
+        }
+        galleryDoneBtn.addEventListener('touchstart', galleryDone, { passive: false });
+        galleryDoneBtn.addEventListener('click', galleryDone);
+    }
+
+
+    // ── SCENE 3: RETRO ALARM CLOCK ────────────────────────────────
+    const snoozeBtn    = document.getElementById('snooze-btn');
+    const clockWrap    = document.getElementById('clock-wrap');
+    const clockTime    = document.getElementById('clock-time');
+    const snoozeStatus = document.getElementById('snooze-status');
+    const crackOverlay = document.getElementById('crack-overlay');
+
+    if (snoozeBtn && clockWrap) {
+        let snoozeCount  = 0;
+        let snoozeLocked = false;
+
+        const shakeClass  = ['shake-1', 'shake-1', 'shake-2', 'shake-2', 'shake-3'];
+        const statusLines = [
+            'keep going...',
+            'still going...',
+            'it\'s cracking...',
+            'almost there...',
+            'SMASHED IT'
+        ];
+
+        // Start the blinking alarm display
+        clockTime.style.animation = 'blink 0.65s step-end infinite';
+
+        function doSnooze(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (snoozeLocked) return;
+            snoozeLocked = true;
+            snoozeCount++;
+
+            // Re-trigger shake animation
+            const cls = shakeClass[snoozeCount - 1];
+            clockWrap.classList.remove('shake-1', 'shake-2', 'shake-3');
+            void clockWrap.offsetHeight;
+            clockWrap.classList.add(cls);
+
+            // Update status text
+            snoozeStatus.textContent = statusLines[snoozeCount - 1];
+
+            // Show crack at tap 3+
+            if (snoozeCount >= 3) crackOverlay.classList.add('show');
+
+            if (snoozeCount >= 5) {
+                // Break the clock
+                clockTime.style.animation = 'none';
+                snoozeBtn.style.pointerEvents = 'none';
+                setTimeout(() => {
+                    clockWrap.classList.add('clock-breaking');
+                }, 200);
+                setTimeout(() => {
+                    ch2ShowScene('scene-alarm', 'scene-ch3-closing');
+                }, 1100);
+            } else {
+                const shakeDuration = [400, 400, 500, 500, 600][snoozeCount - 1];
+                setTimeout(() => { snoozeLocked = false; }, shakeDuration + 50);
+            }
+        }
+
+        snoozeBtn.addEventListener('touchstart', doSnooze, { passive: false });
+        snoozeBtn.addEventListener('click', doSnooze);
+    }
+
+
+    // ── Chapter 3 closing → Chapter 4 ─────────────────────────────
+    const toChapter4Btn = document.getElementById('to-chapter4-btn');
+    if (toChapter4Btn) {
+        let ch4Fired = false;
+        function goToChapter4(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (ch4Fired) return;
+            ch4Fired = true;
+            window.location.href = 'chapter4.html';
+        }
+        toChapter4Btn.addEventListener('touchstart', goToChapter4, { passive: false });
+        toChapter4Btn.addEventListener('click', goToChapter4);
+    }
+
+}
 
 
 // ==========================================

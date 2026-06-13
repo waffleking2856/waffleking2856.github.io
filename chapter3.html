@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Chapter 3 – Cancun</title>
+    <script src="script.js" defer></script>
+    <style>
+        *, *::before, *::after {
+            box-sizing: border-box; margin: 0; padding: 0;
+            -webkit-user-select: none; user-select: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        body, html {
+            width: 100%; height: 100%; overflow: hidden;
+            background: #080510;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* ── Scene base ─────────────────────────────── */
+        .scene {
+            position: absolute; top: 0; left: 0;
+            width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            transition: opacity 0.8s ease; opacity: 1;
+        }
+        .scene.hidden { opacity: 0; pointer-events: none; }
+
+
+        /* ════════════════════════════════════════════
+           SCENE 1 – TOP SECRET FOLDER
+        ════════════════════════════════════════════ */
+        #scene-folder {
+            background: radial-gradient(ellipse at 50% 55%, #1c1428 0%, #080510 100%);
+        }
+
+        .folder-header {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 20px 20px 12px; text-align: center;
+        }
+        .folder-header h1 {
+            color: rgba(210,185,110,0.9);
+            font-size: 1.25rem; font-weight: 900;
+            letter-spacing: 3px; text-transform: uppercase;
+            text-shadow: 0 0 24px rgba(210,175,60,0.4);
+        }
+        .folder-header p {
+            color: rgba(255,255,255,0.35);
+            font-size: 0.72rem; margin-top: 5px; letter-spacing: 0.5px;
+        }
+
+        /* Folder wrapper */
+        .folder-wrap {
+            position: relative;
+            width: 260px; height: 340px;
+            touch-action: none;
+        }
+
+        /* Folder body — the base (visible behind flap) */
+        .folder-body {
+            position: absolute;
+            bottom: 0; left: 0; right: 0; height: 300px;
+            background: linear-gradient(155deg, #d4a843 0%, #b8872a 100%);
+            border-radius: 4px 4px 10px 10px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.65),
+                        inset 0 1px 0 rgba(255,255,255,0.18);
+            overflow: hidden;
+        }
+        /* Lined paper effect inside folder */
+        .folder-lines {
+            position: absolute;
+            top: 28px; left: 18px; right: 18px;
+        }
+        .folder-line {
+            height: 1.5px;
+            background: rgba(0,0,0,0.1);
+            border-radius: 1px;
+            margin-bottom: 16px;
+        }
+        /* Rubber stamp */
+        .stamp {
+            position: absolute;
+            top: 44px; left: 50%; transform: translateX(-50%) rotate(-9deg);
+            border: 3px solid rgba(170,0,0,0.65);
+            color: rgba(170,0,0,0.65);
+            padding: 5px 13px;
+            font-size: 0.9rem; font-weight: 900;
+            letter-spacing: 3px; text-transform: uppercase;
+            border-radius: 4px; white-space: nowrap;
+        }
+        .stamp-redact {
+            position: absolute;
+            top: 105px; left: 50%; transform: translateX(-50%) rotate(-9deg);
+            background: #1a0a00;
+            color: #1a0a00;
+            font-size: 0.7rem; font-weight: 900;
+            padding: 3px 18px; border-radius: 2px;
+            white-space: nowrap; user-select: none;
+        }
+
+        /* Envelope flap — sits on top, dragged upward */
+        #folder-flap {
+            position: absolute;
+            top: 0; left: 0; right: 0; height: 180px;
+            background: linear-gradient(180deg, #bf8520 0%, #c99038 70%, #d4a843 100%);
+            /* Envelope V-notch at bottom */
+            clip-path: polygon(0 0, 100% 0, 100% 58%, 50% 100%, 0 58%);
+            border-radius: 4px 4px 0 0;
+            z-index: 10;
+            touch-action: none;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.35);
+            cursor: grab;
+        }
+        .flap-seal {
+            position: absolute;
+            top: 22px; left: 50%; transform: translateX(-50%);
+            width: 38px; height: 38px;
+            background: radial-gradient(circle at 38% 38%, #9b1010 0%, #660000 100%);
+            border-radius: 50%;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.1rem;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.5), inset 0 1px 0 rgba(255,100,100,0.2);
+        }
+        .flap-hint {
+            position: absolute;
+            bottom: -32px; left: 50%; transform: translateX(-50%);
+            color: rgba(255,255,255,0.4);
+            font-size: 0.68rem; font-weight: 700;
+            letter-spacing: 1.5px; text-transform: uppercase;
+            white-space: nowrap; pointer-events: none;
+        }
+
+
+        /* ════════════════════════════════════════════
+           SCENE 2 – CANCUN GALLERY
+        ════════════════════════════════════════════ */
+        #scene-gallery { background: #060e18; }
+
+        .gallery-header {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 18px 20px 14px;
+            background: linear-gradient(180deg, rgba(0,0,0,0.85) 0%, transparent 100%);
+            text-align: center; z-index: 5;
+        }
+        .gallery-header h2 {
+            color: #fff; font-size: 1.2rem; font-weight: 900;
+        }
+        .gallery-header p {
+            color: rgba(255,210,160,0.75); font-size: 0.75rem; margin-top: 3px;
+        }
+
+        .gallery-viewport {
+            width: 100%; height: 100%; overflow: hidden; position: relative;
+        }
+        .gallery-track {
+            display: flex; height: 100%;
+            will-change: transform;
+        }
+        .gallery-slide {
+            min-width: 100%; height: 100%;
+            display: flex; flex-direction: column;
+            align-items: center; justify-content: center;
+            padding: 80px 20px 110px;
+        }
+        .gallery-slide img {
+            width: 100%; max-height: 100%;
+            object-fit: contain; border-radius: 10px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.65);
+            display: block;
+        }
+        /* YOUR CAPTIONS: edit the text inside each .slide-caption below */
+        .slide-caption {
+            color: rgba(255,210,160,0.8);
+            font-size: 0.82rem; line-height: 1.5;
+            text-align: center; margin-top: 14px;
+            font-style: italic;
+            -webkit-user-select: text; user-select: text;
+        }
+
+        /* Slide dots */
+        .gallery-dots {
+            position: absolute; bottom: 68px;
+            left: 50%; transform: translateX(-50%);
+            display: flex; gap: 9px; z-index: 5;
+        }
+        .dot {
+            width: 8px; height: 8px; border-radius: 50%;
+            background: rgba(255,255,255,0.28);
+            transition: background 0.25s, transform 0.25s;
+        }
+        .dot.active { background: #fff; transform: scale(1.3); }
+
+        #gallery-done-btn {
+            position: absolute; bottom: 18px;
+            left: 50%; transform: translateX(-50%);
+            background: linear-gradient(135deg, #1a4030 0%, #0d2a1e 100%);
+            color: #fff; border: 1.5px solid rgba(80,200,120,0.3);
+            border-radius: 22px; padding: 11px 34px;
+            font-size: 0.88rem; font-weight: 700;
+            touch-action: manipulation; pointer-events: auto;
+            -webkit-appearance: none; cursor: pointer;
+            opacity: 0; transition: opacity 0.5s ease; z-index: 5;
+            white-space: nowrap;
+        }
+        #gallery-done-btn.visible { opacity: 1; }
+
+
+        /* ════════════════════════════════════════════
+           SCENE 3 – RETRO ALARM CLOCK
+        ════════════════════════════════════════════ */
+        #scene-alarm {
+            background: radial-gradient(ellipse at 50% 40%, #1a0d28 0%, #080510 100%);
+        }
+
+        .alarm-header {
+            position: absolute; top: 0; left: 0; right: 0;
+            padding: 20px 20px 10px; text-align: center;
+        }
+        .alarm-header h2 {
+            color: rgba(255,195,60,0.9);
+            font-size: 1.2rem; font-weight: 900;
+        }
+        .alarm-header p {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.75rem; margin-top: 4px;
+        }
+
+        /* Whole clock assembly */
+        #clock-wrap {
+            display: flex; flex-direction: column;
+            align-items: center; position: relative;
+        }
+
+        /* Bells row */
+        .clock-bells {
+            display: flex; justify-content: space-between;
+            width: 200px; margin-bottom: -18px;
+            position: relative; z-index: 2;
+            padding: 0 8px;
+        }
+        .bell {
+            width: 46px; height: 46px;
+            background: radial-gradient(circle at 35% 32%,
+                #e8e0c0 0%, #c0aa70 45%, #8a7a40 100%);
+            border-radius: 50% 50% 44% 44%;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.55),
+                        inset 0 1px 0 rgba(255,255,255,0.35);
+            position: relative;
+        }
+        .bell::after {
+            content: '';
+            position: absolute;
+            bottom: -7px; left: 50%; transform: translateX(-50%);
+            width: 10px; height: 13px;
+            background: #8a7a40;
+            border-radius: 0 0 5px 5px;
+        }
+        /* Hammer between bells */
+        .bell-hammer {
+            position: absolute;
+            top: 50%; left: 50%; transform: translate(-50%, -20%);
+            width: 18px; height: 10px;
+            background: #5a5030;
+            border-radius: 4px;
+        }
+
+        /* Clock body */
+        .clock-body {
+            width: 210px;
+            background: linear-gradient(155deg, #d0c4a4 0%, #b4a87e 45%, #988c5e 100%);
+            border-radius: 48% 48% 38% 38% / 55% 55% 42% 42%;
+            padding: 22px 22px 30px;
+            box-shadow:
+                0 10px 35px rgba(0,0,0,0.65),
+                inset 0 2px 0 rgba(255,255,255,0.35),
+                inset 0 -3px 10px rgba(0,0,0,0.18);
+            position: relative; z-index: 1;
+        }
+
+        /* LED display screen */
+        .clock-screen {
+            background: #060e04;
+            border-radius: 8px;
+            padding: 11px 8px 9px;
+            margin-bottom: 14px;
+            box-shadow: inset 0 2px 10px rgba(0,0,0,0.9),
+                        0 0 0 2px rgba(0,0,0,0.3);
+            text-align: center;
+        }
+        #clock-time {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 2.9rem; font-weight: 900;
+            color: #ff2200;
+            text-shadow:
+                0 0 8px rgba(255,40,0,0.9),
+                0 0 20px rgba(255,40,0,0.5),
+                0 0 40px rgba(255,20,0,0.2);
+            letter-spacing: 5px; line-height: 1;
+        }
+        .clock-label {
+            font-family: 'Courier New', Courier, monospace;
+            font-size: 0.58rem; color: rgba(255,60,0,0.5);
+            letter-spacing: 3px; margin-top: 3px;
+        }
+
+        /* Knobs on top of clock face */
+        .clock-knobs {
+            display: flex; justify-content: space-between;
+            padding: 0 10px; margin-bottom: 6px;
+        }
+        .knob {
+            width: 14px; height: 14px;
+            background: radial-gradient(circle at 38% 35%,
+                #a09070 0%, #706040 100%);
+            border-radius: 50%;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.4);
+        }
+
+        /* Feet */
+        .clock-feet {
+            display: flex; justify-content: center;
+            gap: 90px; margin-top: -8px;
+        }
+        .foot {
+            width: 22px; height: 14px;
+            background: linear-gradient(180deg, #988c5e 0%, #786c3e 100%);
+            border-radius: 0 0 7px 7px;
+        }
+
+        /* Big SNOOZE button */
+        #snooze-btn {
+            margin-top: 26px;
+            width: 150px; height: 48px;
+            background: radial-gradient(circle at 40% 32%,
+                #ff5533 0%, #cc1100 55%, #aa0000 100%);
+            color: #fff; border: none;
+            border-radius: 24px;
+            font-size: 1rem; font-weight: 900;
+            letter-spacing: 2.5px;
+            touch-action: manipulation; pointer-events: auto;
+            -webkit-appearance: none; cursor: pointer;
+            box-shadow:
+                0 6px 22px rgba(200,0,0,0.5),
+                0 2px 0 rgba(0,0,0,0.4),
+                inset 0 1px 0 rgba(255,255,255,0.22);
+            transition: transform 0.1s, box-shadow 0.1s;
+        }
+        #snooze-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 3px 12px rgba(200,0,0,0.5);
+        }
+
+        .snooze-status {
+            margin-top: 18px;
+            color: rgba(255,255,255,0.38);
+            font-size: 0.75rem; font-weight: 600;
+            letter-spacing: 0.5px; text-align: center;
+            min-height: 1.2em;
+        }
+
+        /* Crack overlay on clock-wrap */
+        .crack-overlay {
+            position: absolute; inset: 0;
+            pointer-events: none; opacity: 0;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 5rem;
+            transition: opacity 0.2s;
+            z-index: 20;
+        }
+        .crack-overlay.show { opacity: 1; }
+
+        /* Shake animations */
+        @keyframes shake1 {
+            0%,100% { transform: rotate(0deg); }
+            25% { transform: rotate(-3deg); }
+            75% { transform: rotate(3deg); }
+        }
+        @keyframes shake2 {
+            0%,100% { transform: rotate(0) translateX(0); }
+            20%  { transform: rotate(-5deg) translateX(-7px); }
+            40%  { transform: rotate(5deg) translateX(7px); }
+            60%  { transform: rotate(-4deg) translateX(-5px); }
+            80%  { transform: rotate(4deg) translateX(5px); }
+        }
+        @keyframes shake3 {
+            0%,100% { transform: rotate(0) translateX(0); }
+            15%  { transform: rotate(-9deg) translateX(-12px); }
+            30%  { transform: rotate(9deg) translateX(12px); }
+            45%  { transform: rotate(-7deg) translateX(-9px); }
+            60%  { transform: rotate(7deg) translateX(9px); }
+            75%  { transform: rotate(-4deg); }
+            90%  { transform: rotate(4deg); }
+        }
+        @keyframes clockBreak {
+            0%   { transform: scale(1) rotate(0); opacity: 1; }
+            40%  { transform: scale(1.25) rotate(8deg); opacity: 0.9; }
+            100% { transform: scale(0.1) rotate(30deg); opacity: 0; }
+        }
+        @keyframes blink {
+            0%, 49%  { opacity: 1; }
+            50%, 100% { opacity: 0.12; }
+        }
+
+        .shake-1 { animation: shake1 0.4s ease; }
+        .shake-2 { animation: shake2 0.5s ease; }
+        .shake-3 { animation: shake3 0.6s ease; }
+        .clock-breaking { animation: clockBreak 0.65s ease forwards; }
+
+
+        /* ════════════════════════════════════════════
+           SCENE 4 – CHAPTER CLOSING
+        ════════════════════════════════════════════ */
+        #scene-ch3-closing {
+            background: linear-gradient(180deg, #08101a 0%, #050c14 100%);
+            justify-content: flex-start;
+            overflow-y: auto;
+        }
+        .closing-scroll {
+            display: flex; flex-direction: column;
+            align-items: center;
+            padding: 50px 24px 50px; width: 100%; min-height: 100%;
+        }
+        /* rename us3.png to match whatever photo file you use */
+        .closing-photo {
+            width: 90%; max-width: 340px;
+            border-radius: 12px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.65);
+            margin-bottom: 28px;
+            border: 3px solid rgba(255,255,255,0.12);
+            object-fit: cover;
+        }
+        /* YOUR TEXT: write your closing note for this chapter below */
+        .closing-text {
+            color: rgba(255,210,160,0.88);
+            font-size: 1rem; line-height: 1.85;
+            text-align: center; max-width: 95%;
+            margin-bottom: 36px;
+            -webkit-user-select: text; user-select: text;
+        }
+        #to-chapter4-btn {
+            background: linear-gradient(135deg, #28184a 0%, #180e36 100%);
+            color: #fff;
+            border: 1.5px solid rgba(160,110,220,0.35);
+            border-radius: 14px; padding: 14px 28px;
+            font-size: 0.95rem; font-weight: 800;
+            touch-action: manipulation; pointer-events: auto;
+            -webkit-appearance: none; cursor: pointer;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.4);
+            width: 100%; max-width: 320px; letter-spacing: 0.5px;
+            transition: transform 0.2s;
+        }
+        #to-chapter4-btn:active { transform: scale(0.97); }
+        .ch4-hint {
+            color: rgba(255,255,255,0.28);
+            font-size: 0.7rem; margin-top: 10px; margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- ════════════════════════════════════════
+         SCENE 1: TOP SECRET FOLDER
+    ═════════════════════════════════════════ -->
+    <div class="scene" id="scene-folder">
+
+        <div class="folder-header">
+            <h1>⚠ Secret Stuff</h1>
+            <p>drag the seal upward to open</p>
+        </div>
+
+        <div class="folder-wrap" id="folder-wrap">
+
+            <!-- Body (behind the flap) -->
+            <div class="folder-body">
+                <div class="folder-lines">
+                    <div class="folder-line"></div>
+                    <div class="folder-line"></div>
+                    <div class="folder-line"></div>
+                    <div class="folder-line"></div>
+                </div>
+                <div class="stamp">SECRET AHH VACATION</div>
+                <div class="stamp-redact">— REDACTED —</div>
+            </div>
+
+            <!-- Draggable envelope flap -->
+            <div id="folder-flap">
+                <div class="flap-seal">🔒</div>
+                <div class="flap-hint">↑ drag to open</div>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SCENE 2: CANCUN GALLERY
+    ═════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-gallery">
+
+        <div class="gallery-header">
+            <h2>Cancun 🌊</h2>
+            <p>swipe through</p>
+        </div>
+
+        <div class="gallery-viewport">
+            <div class="gallery-track" id="gallery-track">
+
+                <div class="gallery-slide">
+                    <img src="cancun1.png" alt="Cancun photo 1">
+                    <!-- YOUR CAPTION: write what this photo means to you -->
+                    <p class="slide-caption">[YOUR CAPTION HERE]</p>
+                </div>
+
+                <div class="gallery-slide">
+                    <img src="cancun2.png" alt="Cancun photo 2">
+                    <!-- YOUR CAPTION -->
+                    <p class="slide-caption">[YOUR CAPTION HERE]</p>
+                </div>
+
+                <div class="gallery-slide">
+                    <img src="cancun3.png" alt="Cancun photo 3">
+                    <!-- YOUR CAPTION -->
+                    <p class="slide-caption">[YOUR CAPTION HERE]</p>
+                </div>
+
+                <div class="gallery-slide">
+                    <img src="cancun4.png" alt="Cancun photo 4">
+                    <!-- YOUR CAPTION -->
+                    <p class="slide-caption">[YOUR CAPTION HERE]</p>
+                </div>
+
+            </div>
+        </div>
+
+        <div class="gallery-dots">
+            <div class="dot active"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+
+        <!-- Appears once the last slide is reached -->
+        <button id="gallery-done-btn">keep going →</button>
+
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SCENE 3: RETRO ALARM CLOCK
+    ═════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-alarm">
+
+        <div class="alarm-header">
+            <h2>the morning after Cancun...</h2>
+            <!-- YOUR TEXT: add a line about what happened -->
+            <p>[YOUR LINE HERE — something about crashing hard and missing the flight]</p>
+        </div>
+
+        <div id="clock-wrap">
+            <!-- Crack overlay (hidden until tap 3) -->
+            <div class="crack-overlay" id="crack-overlay">💥</div>
+
+            <div class="clock-bells">
+                <div class="bell"></div>
+                <div class="bell-hammer"></div>
+                <div class="bell"></div>
+            </div>
+
+            <div class="clock-body">
+                <div class="clock-knobs">
+                    <div class="knob"></div>
+                    <div class="knob"></div>
+                </div>
+                <div class="clock-screen">
+                    <div id="clock-time">7:30</div>
+                    <div class="clock-label">ALARM</div>
+                </div>
+            </div>
+
+            <div class="clock-feet">
+                <div class="foot"></div>
+                <div class="foot"></div>
+            </div>
+        </div>
+
+        <button id="snooze-btn">SNOOZE</button>
+        <p class="snooze-status" id="snooze-status">smash it 5 times</p>
+
+    </div>
+
+
+    <!-- ════════════════════════════════════════
+         SCENE 4: CHAPTER CLOSING
+    ═════════════════════════════════════════ -->
+    <div class="scene hidden" id="scene-ch3-closing">
+
+        <div class="closing-scroll">
+
+            <!-- rename us3.png to whatever your closing photo is called -->
+            <img src="us3.png" alt="us in Cancun" class="closing-photo">
+
+            <!-- YOUR TEXT: your personal note about Cancun — what it meant, your favorite moment, etc. -->
+            <p class="closing-text">[YOUR TEXT HERE]</p>
+
+            <button id="to-chapter4-btn">Chapter 4 →</button>
+            <p class="ch4-hint">one more chapter</p>
+
+        </div>
+
+    </div>
+
+</body>
+</html>
