@@ -706,11 +706,19 @@ if (farmScene) {
         img.src       = item.src;
         img.style.width = item.w + 'px';
         img.draggable = false;
+        // Red box if file not found — tells you exactly which one is broken
+        img.onerror = () => {
+            img.style.cssText += `width:${item.w}px;height:${item.w}px;background:rgba(255,0,0,0.5);border:3px solid red;display:block;`;
+        };
         wrap.appendChild(img);
         farmScene.appendChild(wrap);
 
+        // Per-item lock — set before any side effects, immune to race conditions
+        let itemDone = false;
+
         function collectItem(e) {
-            if (wrap.classList.contains('collected') || farmDone) return;
+            if (itemDone || farmDone) return;
+            itemDone = true;
             const cx = (e.touches ? e.touches[0].clientX : e.clientX);
             const cy = (e.touches ? e.touches[0].clientY : e.clientY);
             wrap.classList.add('collected');
