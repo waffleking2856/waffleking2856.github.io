@@ -650,21 +650,21 @@ if (folderScene) {
     }
 
 
-    // ── Chapter 3 closing → Chapter 4 ─────────────────────────────
-    const toChapter4Btn = document.getElementById('to-chapter4-btn');
-    if (toChapter4Btn) {
-        let ch4Fired = false;
-        function goToChapter4(e) {
-            e.preventDefault();
-            e.stopPropagation();
-            if (ch4Fired) return;
-            ch4Fired = true;
-            window.location.href = 'chapter4.html';
-        }
-        toChapter4Btn.addEventListener('touchstart', goToChapter4, { passive: false });
-        toChapter4Btn.addEventListener('click', goToChapter4);
-    }
+}
 
+// ── Chapter 3 closing → Chapter 4 (standalone) ────────────────────
+const toChapter4Btn = document.getElementById('to-chapter4-btn');
+if (toChapter4Btn) {
+    let ch4Fired = false;
+    function goToChapter4(e) {
+        e.preventDefault();
+        e.stopPropagation();
+        if (ch4Fired) return;
+        ch4Fired = true;
+        window.location.href = 'chapter4.html';
+    }
+    toChapter4Btn.addEventListener('touchstart', goToChapter4, { passive: false });
+    toChapter4Btn.addEventListener('click', goToChapter4);
 }
 
 
