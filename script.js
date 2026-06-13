@@ -383,26 +383,20 @@ if (confirmVoteBtn) {
             emoji: '🍗',
             title: 'good pick pookie',
             // YOUR TEXT: what do you want to say when she picks the right one?
-            text: '[YOUR TEXT HERE]'
+
         },
         buffalo: {
             emoji: '🔥',
             title: 'pookie gets what pookie wants or whateva',
             // YOUR TEXT: what do you want to say when she goes buffalo?
-            text: '[YOUR TEXT HERE]'
+ 
         },
         eggrolls: {
             emoji: '🥢',
             title: 'pookie gets what pookie wants or whateva',
             // YOUR TEXT: what do you want to say about the egg rolls pick?
-            text: '[YOUR TEXT HERE]'
+
         },
-        fourth: {
-            emoji: '❓',
-            title: '[YOUR TITLE]',
-            // YOUR TEXT: what do you want to say about this choice?
-            text: '[YOUR TEXT HERE]'
-        }
     };
 
     // Handle vote card selection — use touchstart for Safari reliability
